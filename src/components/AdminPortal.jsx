@@ -3,7 +3,7 @@ import {
   ShieldCheck, Lock, CheckCircle2, AlertCircle, Phone, MapPin, 
   Calendar, RefreshCw, Search, Plus, UserCheck, DollarSign, Filter, LogOut, Edit, Trash2, Eye, EyeOff
 } from 'lucide-react';
-import { getStoredBookings, saveBooking, updateBookingStatus, deleteBooking } from '../data/mockBookings';
+import { getStoredBookings, saveBooking, updateBookingStatus, deleteBooking, syncWithServer } from '../data/mockBookings';
 import { servicesData } from '../data/servicesData';
 
 export default function AdminPortal({ onNavigateHome }) {
@@ -226,16 +226,35 @@ export default function AdminPortal({ onNavigateHome }) {
         {/* Admin Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '2.5rem' }}>
           <div>
-            <div className="badge-gold" style={{ marginBottom: '0.5rem' }}>
-              <ShieldCheck size={14} />
-              <span>Operations Management Console</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
+              <div className="badge-gold">
+                <ShieldCheck size={14} />
+                <span>Operations Management Console</span>
+              </div>
+              <div style={{ background: 'rgba(16, 185, 129, 0.15)', border: '1px solid #10B981', color: '#10B981', fontSize: '0.75rem', fontWeight: 800, padding: '0.2rem 0.6rem', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#10B981', boxShadow: '0 0 8px #10B981' }}></span>
+                <span>Live Cross-Device Sync Active</span>
+              </div>
             </div>
             <h1 style={{ fontSize: '2.4rem', fontWeight: 900, color: '#FFF' }}>
               Nityashree Master Admin Dashboard
             </h1>
           </div>
 
-          <div style={{ display: 'flex', gap: '0.85rem' }}>
+          <div style={{ display: 'flex', gap: '0.85rem', flexWrap: 'wrap' }}>
+            <button 
+              onClick={() => {
+                syncWithServer();
+                setBookings(getStoredBookings());
+              }} 
+              className="btn btn-outline"
+              style={{ borderColor: 'var(--accent-gold)', color: 'var(--accent-gold)' }}
+              title="Force sync live bookings from backend server"
+            >
+              <RefreshCw size={16} />
+              <span>Sync Now</span>
+            </button>
+
             <button onClick={() => setShowAddModal(true)} className="btn btn-gold">
               <Plus size={18} />
               <span>Add Manual Order</span>

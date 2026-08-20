@@ -1,5 +1,40 @@
 export const initialBookings = [];
 
+// Helper to safely get host for API calls
+function getApiUrl(path) {
+  if (typeof window === 'undefined') return `/api${path}`;
+  // Use location.hostname so mobile devices accessing via http://<IP>:5173 hit http://<IP>:3001 or proxied /api
+  return `/api${path}`;
+}
+
+export function syncWithServer() {
+  if (typeof window === 'undefined') return;
+  fetch(getApiUrl('/bookings'))
+    .then(res => {
+      if (res.ok) return res.json();
+      throw new Error('Network error');
+    })
+    .then(remoteBookings => {
+      if (Array.isArray(remoteBookings)) {
+        const local = getStoredBookings();
+        // Compare to see if updated
+        if (JSON.stringify(remoteBookings) !== JSON.stringify(local)) {
+          localStorage.setItem('nityashree_bookings', JSON.stringify(remoteBookings));
+          window.dispatchEvent(new Event('nityashree_booking_updated'));
+        }
+      }
+    })
+    .catch(err => {
+      // Quiet fail to localStorage fallback
+    });
+}
+
+// Start auto-sync heartbeat every 2.5 seconds
+if (typeof window !== 'undefined') {
+  syncWithServer();
+  setInterval(syncWithServer, 2500);
+}
+
 export function getStoredBookings() {
   try {
     const data = localStorage.getItem('nityashree_bookings');
@@ -15,7 +50,8 @@ export function getStoredBookings() {
 
 export function saveBooking(newBooking) {
   const current = getStoredBookings();
-  const updated = [newBooking, ...current];
+  const updated = [newBooking, ...current.filter(b => b.id !== newBooking.id)];
+  
   try {
     localStorage.setItem('nityashree_bookings', JSON.stringify(updated));
     if (typeof window !== 'undefined') {
@@ -24,6 +60,16 @@ export function saveBooking(newBooking) {
   } catch (e) {
     console.error("Storage error", e);
   }
+
+  // Sync to central backend API asynchronously
+  fetch(getApiUrl('/bookings'), {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(newBooking)
+  })
+  .then(() => syncWithServer())
+  .catch(err => console.error("Remote sync error", err));
+
   return updated;
 }
 
@@ -40,6 +86,7 @@ export function updateBookingStatus(id, newStatus, technicianName, technicianPho
     }
     return b;
   });
+
   try {
     localStorage.setItem('nityashree_bookings', JSON.stringify(updated));
     if (typeof window !== 'undefined') {
@@ -48,12 +95,23 @@ export function updateBookingStatus(id, newStatus, technicianName, technicianPho
   } catch (e) {
     console.error("Storage error", e);
   }
+
+  // Sync update to central backend API
+  fetch(getApiUrl(`/bookings/${id}`), {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ status: newStatus, technicianName, technicianPhone })
+  })
+  .then(() => syncWithServer())
+  .catch(err => console.error("Remote update error", err));
+
   return updated;
 }
 
 export function deleteBooking(id) {
   const current = getStoredBookings();
   const updated = current.filter(b => b.id !== id);
+
   try {
     localStorage.setItem('nityashree_bookings', JSON.stringify(updated));
     if (typeof window !== 'undefined') {
@@ -62,6 +120,14 @@ export function deleteBooking(id) {
   } catch (e) {
     console.error("Storage error", e);
   }
+
+  // Sync deletion to central backend API
+  fetch(getApiUrl(`/bookings/${id}`), {
+    method: 'DELETE'
+  })
+  .then(() => syncWithServer())
+  .catch(err => console.error("Remote delete error", err));
+
   return updated;
 }
 
@@ -80,7 +146,6 @@ export function registerNewUser(userData) {
   const cleanEmail = userData.email ? userData.email.trim().toLowerCase() : '';
   const cleanPhone = userData.phone ? userData.phone.replace(/[^0-9]/g, '') : '';
 
-  // Check if admin email or duplicate registered email/phone
   if (cleanEmail === 'nityashreeenterprises2024@gmail.com') {
     return { success: false, error: 'This email address is reserved for Administrator access.' };
   }
@@ -103,6 +168,14 @@ export function registerNewUser(userData) {
   } catch (e) {
     console.error("Storage error", e);
   }
+
+  // Sync user to server API
+  fetch(getApiUrl('/users'), {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(userData)
+  }).catch(err => console.error("Remote user sync error", err));
+
   return { success: true, user: userData };
 }
 
