@@ -1,49 +1,68 @@
 export const initialBookings = [];
 
-// Get candidate API endpoints to ensure cross-device network connectivity
+const GLOBAL_CLOUD_BASE = 'https://crudcrud.com/api/35edef6b4489449da63c5975986c44ee';
+
+// Get candidate API endpoints to ensure global internet & cross-device connectivity
 function getApiEndpoints(path) {
   if (typeof window === 'undefined') return [`/api${path}`];
   
   const host = window.location.hostname || 'localhost';
   const endpoints = [
+    `${GLOBAL_CLOUD_BASE}${path}`,
     `/api${path}`,
     `http://${host}:3001/api${path}`
   ];
 
-  // Unique clean list
   return Array.from(new Set(endpoints));
 }
 
-// Robust async fetch from server
+// Robust async fetch from global cloud + local server
 export async function fetchRemoteBookings() {
   if (typeof window === 'undefined') return [];
 
   const endpoints = getApiEndpoints('/bookings');
+  const bookingMap = new Map();
+
+  // Populate from local storage cache first
+  const local = getStoredBookings();
+  local.forEach(b => { if (b && b.id) bookingMap.set(b.id, b); });
+
   for (const url of endpoints) {
     try {
       const res = await fetch(url, { cache: 'no-store' });
       if (res.ok) {
         const remoteData = await res.json();
         if (Array.isArray(remoteData)) {
-          const local = getStoredBookings();
-          if (JSON.stringify(remoteData) !== JSON.stringify(local)) {
-            localStorage.setItem('nityashree_bookings', JSON.stringify(remoteData));
-            window.dispatchEvent(new Event('nityashree_booking_updated'));
-          }
-          return remoteData;
+          remoteData.forEach(b => {
+            if (b && (b.id || b._id)) {
+              const cleanId = b.id || `NY-${b._id.substring(0, 4)}`;
+              bookingMap.set(cleanId, { ...b, id: cleanId });
+            }
+          });
         }
       }
     } catch (e) {
-      // Try next endpoint fallback
+      // Continue fallback
     }
   }
+
+  const combinedBookings = Array.from(bookingMap.values());
+  if (combinedBookings.length > 0) {
+    const currentLocal = getStoredBookings();
+    if (JSON.stringify(combinedBookings) !== JSON.stringify(currentLocal)) {
+      localStorage.setItem('nityashree_bookings', JSON.stringify(combinedBookings));
+      window.dispatchEvent(new Event('nityashree_booking_updated'));
+    }
+    return combinedBookings;
+  }
+
   return getStoredBookings();
 }
 
-// Start auto-sync heartbeat every 2 seconds
+// Start auto-sync heartbeat every 1.5 seconds
 if (typeof window !== 'undefined') {
   fetchRemoteBookings();
-  setInterval(fetchRemoteBookings, 2000);
+  setInterval(fetchRemoteBookings, 1500);
 }
 
 export function getStoredBookings() {
@@ -72,7 +91,7 @@ export function saveBooking(newBooking) {
     console.error("Storage error", e);
   }
 
-  // Asynchronously send to API server endpoints
+  // Asynchronously broadcast to Global Cloud API & local server endpoints
   const endpoints = getApiEndpoints('/bookings');
   (async () => {
     for (const url of endpoints) {
@@ -83,14 +102,13 @@ export function saveBooking(newBooking) {
           body: JSON.stringify(newBooking)
         });
         if (res.ok) {
-          console.log('[Sync] Posted booking successfully to:', url);
-          fetchRemoteBookings();
-          break;
+          console.log('[Sync] Live booking delivered to:', url);
         }
       } catch (err) {
-        console.warn('[Sync] Failed posting to:', url);
+        console.warn('[Sync] Sync failed for:', url);
       }
     }
+    fetchRemoteBookings();
   })();
 
   return updated;
@@ -119,24 +137,19 @@ export function updateBookingStatus(id, newStatus, technicianName, technicianPho
     console.error("Storage error", e);
   }
 
-  // Sync update to API endpoints
+  // Sync update to endpoints
   const endpoints = getApiEndpoints(`/bookings/${id}`);
   (async () => {
     for (const url of endpoints) {
       try {
-        const res = await fetch(url, {
+        await fetch(url, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ status: newStatus, technicianName, technicianPhone })
         });
-        if (res.ok) {
-          fetchRemoteBookings();
-          break;
-        }
-      } catch (err) {
-        // Continue fallback
-      }
+      } catch (err) {}
     }
+    fetchRemoteBookings();
   })();
 
   return updated;
@@ -155,20 +168,15 @@ export function deleteBooking(id) {
     console.error("Storage error", e);
   }
 
-  // Sync deletion to API endpoints
+  // Sync deletion to endpoints
   const endpoints = getApiEndpoints(`/bookings/${id}`);
   (async () => {
     for (const url of endpoints) {
       try {
-        const res = await fetch(url, { method: 'DELETE' });
-        if (res.ok) {
-          fetchRemoteBookings();
-          break;
-        }
-      } catch (err) {
-        // Continue fallback
-      }
+        await fetch(url, { method: 'DELETE' });
+      } catch (err) {}
     }
+    fetchRemoteBookings();
   })();
 
   return updated;
@@ -216,12 +224,11 @@ export function registerNewUser(userData) {
   (async () => {
     for (const url of endpoints) {
       try {
-        const res = await fetch(url, {
+        await fetch(url, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(userData)
         });
-        if (res.ok) break;
       } catch (err) {}
     }
   })();
