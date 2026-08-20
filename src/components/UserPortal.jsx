@@ -5,7 +5,7 @@ import {
 } from 'lucide-react';
 import { getStoredBookings } from '../data/mockBookings';
 
-export default function UserPortal({ onBookNew, onNavigateHome }) {
+export default function UserPortal({ currentUser, onRequireLogin, onBookNew, onNavigateHome }) {
   const [bookings, setBookings] = useState([]);
   const [statusFilter, setStatusFilter] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
@@ -27,14 +27,29 @@ export default function UserPortal({ onBookNew, onNavigateHome }) {
     };
   }, []);
 
-  const filteredBookings = bookings.filter(b => {
+  // Filter strictly for the current logged-in customer's bookings only
+  const myBookings = bookings.filter(b => {
+    if (!currentUser) return false;
+    const cleanUserPhone = currentUser.phone ? currentUser.phone.replace(/[^0-9]/g, '') : '';
+    const cleanBookingPhone = b.phone ? b.phone.replace(/[^0-9]/g, '') : '';
+    const cleanUserName = currentUser.name ? currentUser.name.trim().toLowerCase() : '';
+    const cleanBookingName = b.customerName ? b.customerName.trim().toLowerCase() : '';
+    const cleanUserEmail = currentUser.email ? currentUser.email.trim().toLowerCase() : '';
+
+    const phoneMatch = cleanUserPhone && cleanBookingPhone && (cleanUserPhone.endsWith(cleanBookingPhone) || cleanBookingPhone.endsWith(cleanUserPhone));
+    const nameMatch = cleanUserName && cleanBookingName && cleanUserName === cleanBookingName;
+    const emailMatch = cleanUserEmail && b.email && cleanUserEmail === b.email.trim().toLowerCase();
+
+    return phoneMatch || nameMatch || emailMatch;
+  });
+
+  const filteredBookings = myBookings.filter(b => {
     const matchesStatus = statusFilter === 'All' || 
       (statusFilter === 'Active' && ['Pending', 'Confirmed', 'Dispatched'].includes(b.status)) ||
       (statusFilter === 'Completed' && b.status === 'Completed');
     const matchesSearch = !searchQuery || 
       b.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      b.serviceTitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      b.customerName.toLowerCase().includes(searchQuery.toLowerCase());
+      b.serviceTitle.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesStatus && matchesSearch;
   });
 
@@ -284,14 +299,32 @@ export default function UserPortal({ onBookNew, onNavigateHome }) {
                 </div>
               );
             })
-          ) : (
-            <div className="glass-card" style={{ padding: '3rem', textAlign: 'center' }}>
-              <AlertCircle size={40} color="var(--accent-gold)" style={{ margin: '0 auto 1rem auto' }} />
-              <h3 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#FFF' }}>No Bookings Found</h3>
-              <p style={{ color: 'var(--text-muted)', marginTop: '0.5rem' }}>
-                You haven't logged any service appointments matching this filter yet.
+          ) : !currentUser ? (
+            <div className="glass-card" style={{ padding: '3.5rem 2rem', textAlign: 'center' }}>
+              <AlertCircle size={44} color="var(--accent-gold)" style={{ margin: '0 auto 1.25rem auto' }} />
+              <h3 style={{ fontSize: '1.6rem', fontWeight: 800, color: '#FFF' }}>Account Sign-In Required</h3>
+              <p style={{ color: 'var(--text-muted)', marginTop: '0.5rem', maxWidth: '480px', margin: '0.5rem auto 1.5rem auto', lineHeight: 1.5 }}>
+                Please log in to your account to view your personal booking history and track live technician dispatches privately.
               </p>
-              <button onClick={onBookNew} className="btn btn-gold" style={{ marginTop: '1.5rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+                <button onClick={onRequireLogin} className="btn btn-gold">
+                  <User size={16} />
+                  <span>Log In to View Bookings</span>
+                </button>
+                <button onClick={onBookNew} className="btn btn-outline">
+                  <Plus size={16} />
+                  <span>Book New Service</span>
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="glass-card" style={{ padding: '3.5rem 2rem', textAlign: 'center' }}>
+              <AlertCircle size={44} color="var(--accent-gold)" style={{ margin: '0 auto 1.25rem auto' }} />
+              <h3 style={{ fontSize: '1.6rem', fontWeight: 800, color: '#FFF' }}>No Service Appointments Found</h3>
+              <p style={{ color: 'var(--text-muted)', marginTop: '0.5rem', maxWidth: '480px', margin: '0.5rem auto 1.5rem auto' }}>
+                You have no active or past bookings registered under <strong>{currentUser.name}</strong> ({currentUser.phone || currentUser.email}).
+              </p>
+              <button onClick={onBookNew} className="btn btn-gold" style={{ marginTop: '0.5rem' }}>
                 <Plus size={16} />
                 <span>Book Service Now</span>
               </button>

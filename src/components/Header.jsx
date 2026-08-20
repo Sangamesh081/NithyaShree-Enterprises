@@ -21,11 +21,6 @@ export default function Header({ onOpenBooking, activePage, onNavigate, currentU
 
   const handleGoToBooking = (e) => {
     if (e) e.preventDefault();
-    if (!currentUser) {
-      onNavigate('login');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      return;
-    }
     if (activePage !== 'home') {
       onNavigate('home');
       setTimeout(() => {

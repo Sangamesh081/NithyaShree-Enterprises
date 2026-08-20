@@ -17,14 +17,16 @@ export default function BookingModal({ initialService, quoteDetails, onClose, cu
   });
   const [submitted, setSubmitted] = useState(false);
 
+  const [lastBooking, setLastBooking] = useState(null);
+
   const activeService = servicesData.find(s => s.id === Number(selectedServiceId)) || servicesData[0];
 
   const saveToDashboard = () => {
     const newBookingObj = {
       id: `NY-${Math.floor(8000 + Math.random() * 1000)}`,
-      customerName: formData.name || currentUser?.name || 'Customer User',
-      phone: formData.phone || currentUser?.phone || '+91 9876543210',
-      address: formData.address || currentUser?.address || 'Address provided via Web Form',
+      customerName: formData.name.trim() || currentUser?.name || 'Guest Customer',
+      phone: formData.phone.trim() || currentUser?.phone || 'Not provided',
+      address: formData.address.trim() || currentUser?.address || 'Provided via Booking Modal',
       serviceTitle: activeService.title,
       serviceId: activeService.id,
       date: formData.date,
@@ -37,30 +39,21 @@ export default function BookingModal({ initialService, quoteDetails, onClose, cu
       createdAt: new Date().toISOString().replace('T', ' ').substring(0, 16)
     };
     saveBooking(newBookingObj);
+    setLastBooking(newBookingObj);
+    return newBookingObj;
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!currentUser) {
-      alert("Please log in to your account before placing a service booking.");
-      onClose();
-      if (onRequireLogin) onRequireLogin();
-      return;
-    }
     saveToDashboard();
     setSubmitted(true);
   };
 
   const handleWhatsAppBooking = () => {
-    if (!currentUser) {
-      alert("Please log in to your account before placing a service booking.");
-      onClose();
-      if (onRequireLogin) onRequireLogin();
-      return;
-    }
-    saveToDashboard();
+    const booking = lastBooking || saveToDashboard();
     const text = `*NEW SERVICE BOOKING REQUEST*\n` +
       `-----------------------------------\n` +
+      `*Booking Ref:* ${booking.id}\n` +
       `*Service:* ${activeService.title}\n` +
       `*Name:* ${formData.name || currentUser?.name || 'Not provided'}\n` +
       `*Phone:* ${formData.phone || currentUser?.phone || 'Not provided'}\n` +

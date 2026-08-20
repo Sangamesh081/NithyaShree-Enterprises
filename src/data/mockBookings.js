@@ -1,80 +1,15 @@
-export const initialBookings = [
-  {
-    id: "NY-8942",
-    customerName: "Rahul Sharma",
-    phone: "+91 9876543210",
-    address: "#42, Sector 10, Navanagar, Bagalkot",
-    serviceTitle: "Electrical Installation & Repairs",
-    serviceId: 2,
-    date: "2026-08-20",
-    timeSlot: "Morning (9 AM - 12 PM)",
-    status: "Confirmed",
-    technicianName: "Ramesh Kumar (Electrician)",
-    technicianPhone: "+91 9880506465",
-    estimatedCost: "₹499 - ₹2,500",
-    notes: "MCB Tripping and main switchboard rewire required.",
-    createdAt: "2026-08-19 14:30"
-  },
-  {
-    id: "NY-8002",
-    customerName: "Priya Sundaram",
-    phone: "+91 9019935616",
-    address: "Flat 402, Vidyagiri, Bagalkot",
-    serviceTitle: "Plumbing Services & Fitting",
-    serviceId: 1,
-    date: "2026-08-21",
-    timeSlot: "Afternoon (12 PM - 4 PM)",
-    status: "Pending",
-    technicianName: "Technician Assignment Pending",
-    technicianPhone: "-",
-    estimatedCost: "₹349 - ₹1,800",
-    notes: "Kitchen sink leakage & bathroom tap replacement.",
-    createdAt: "2026-08-20 09:15"
-  },
-  {
-    id: "NY-8003",
-    customerName: "Vikram Reddy",
-    phone: "+91 9880506465",
-    address: "Plot 88, Old City, Bagalkot",
-    serviceTitle: "Interior & Exterior Painting",
-    serviceId: 5,
-    date: "2026-08-22",
-    timeSlot: "Morning (9 AM - 12 PM)",
-    status: "Completed",
-    technicianName: "Suresh Gowda (Master Painter)",
-    technicianPhone: "+91 7676054977",
-    estimatedCost: "₹12,000 - ₹45,000",
-    notes: "3BHK Royal Emulsion painting with damp proofing.",
-    createdAt: "2026-08-18 11:00"
-  },
-  {
-    id: "NY-8004",
-    customerName: "Ananya Hegde",
-    phone: "+91 7676054977",
-    address: "#105, BVVS Campus Road, Bagalkot",
-    serviceTitle: "Packers & Movers",
-    serviceId: 11,
-    date: "2026-08-19",
-    timeSlot: "Morning (9 AM - 12 PM)",
-    status: "Completed",
-    technicianName: "Nityashree Logistics Team A",
-    technicianPhone: "+91 6362917433",
-    estimatedCost: "₹9,500",
-    notes: "Moved 2BHK household items from JP Nagar to Yelahanka.",
-    createdAt: "2026-08-18 14:00"
-  }
-];
+export const initialBookings = [];
 
 export function getStoredBookings() {
   try {
     const data = localStorage.getItem('nityashree_bookings');
     if (!data) {
-      localStorage.setItem('nityashree_bookings', JSON.stringify(initialBookings));
-      return initialBookings;
+      localStorage.setItem('nityashree_bookings', JSON.stringify([]));
+      return [];
     }
     return JSON.parse(data);
   } catch (err) {
-    return initialBookings;
+    return [];
   }
 }
 

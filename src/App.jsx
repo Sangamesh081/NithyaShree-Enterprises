@@ -22,7 +22,14 @@ import SignupPage from './components/SignupPage';
 
 export default function App() {
   const [activePage, setActivePage] = useState('home'); // 'home' | 'user' | 'admin' | 'login' | 'signup'
-  const [currentUser, setCurrentUser] = useState(null);
+  const [currentUser, setCurrentUser] = useState(() => {
+    try {
+      const saved = localStorage.getItem('nityashree_current_user');
+      return saved ? JSON.parse(saved) : null;
+    } catch (e) {
+      return null;
+    }
+  });
   const [bookingModalOpen, setBookingModalOpen] = useState(false);
   const [selectedService, setSelectedService] = useState(null);
   const [detailModalService, setDetailModalService] = useState(null);
@@ -31,30 +38,15 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState('');
 
   const handleOpenBooking = (service = null) => {
-    if (!currentUser) {
-      setActivePage('login');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      return;
-    }
     setSelectedService(service);
     setBookingModalOpen(true);
   };
 
   const handleOpenDetailModal = (service) => {
-    if (!currentUser) {
-      setActivePage('login');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      return;
-    }
     setDetailModalService(service);
   };
 
   const handleBookWithQuote = (quoteData) => {
-    if (!currentUser) {
-      setActivePage('login');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      return;
-    }
     setSelectedService(quoteData.service);
     setQuoteDetails(quoteData);
     setBookingModalOpen(true);
@@ -62,6 +54,11 @@ export default function App() {
 
   const handleLoginSuccess = (userData) => {
     setCurrentUser(userData);
+    try {
+      localStorage.setItem('nityashree_current_user', JSON.stringify(userData));
+    } catch (e) {
+      console.error(e);
+    }
     if (userData.role === 'admin') {
       setActivePage('admin');
     } else {
@@ -77,6 +74,11 @@ export default function App() {
 
   const handleLogout = () => {
     setCurrentUser(null);
+    try {
+      localStorage.removeItem('nityashree_current_user');
+    } catch (e) {
+      console.error(e);
+    }
     setActivePage('home');
   };
 
@@ -108,6 +110,11 @@ export default function App() {
         />
       ) : activePage === 'user' ? (
         <UserPortal 
+          currentUser={currentUser}
+          onRequireLogin={() => {
+            setActivePage('login');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
           onBookNew={() => handleOpenBooking()} 
           onNavigateHome={() => setActivePage('home')} 
         />

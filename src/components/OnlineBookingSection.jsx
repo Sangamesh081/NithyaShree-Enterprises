@@ -6,23 +6,24 @@ import { saveBooking } from '../data/mockBookings';
 export default function OnlineBookingSection({ currentUser, onRequireLogin }) {
   const [selectedServiceId, setSelectedServiceId] = useState(servicesData[0].id);
   const [formData, setFormData] = useState({
-    name: '',
-    phone: '',
-    address: '',
+    name: currentUser?.name || '',
+    phone: currentUser?.phone || '',
+    address: currentUser?.address || '',
     date: new Date().toISOString().split('T')[0],
     timeSlot: 'Morning (9 AM - 12 PM)',
     notes: ''
   });
   const [submitted, setSubmitted] = useState(false);
+  const [lastBooking, setLastBooking] = useState(null);
 
   const activeService = servicesData.find(s => s.id === Number(selectedServiceId)) || servicesData[0];
 
   const saveToDashboard = () => {
     const newBookingObj = {
       id: `NY-${Math.floor(8000 + Math.random() * 1000)}`,
-      customerName: formData.name || currentUser?.name || 'Customer User',
-      phone: formData.phone || currentUser?.phone || '+91 9876543210',
-      address: formData.address || currentUser?.address || 'Address provided via Web Form',
+      customerName: formData.name.trim() || currentUser?.name || 'Guest Customer',
+      phone: formData.phone.trim() || currentUser?.phone || 'Not provided',
+      address: formData.address.trim() || currentUser?.address || 'Provided via Online Form',
       serviceTitle: activeService.title,
       serviceId: activeService.id,
       date: formData.date,
@@ -35,32 +36,21 @@ export default function OnlineBookingSection({ currentUser, onRequireLogin }) {
       createdAt: new Date().toISOString().replace('T', ' ').substring(0, 16)
     };
     saveBooking(newBookingObj);
+    setLastBooking(newBookingObj);
+    return newBookingObj;
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!currentUser) {
-      alert("Please log in to your account before placing a service booking.");
-      if (onRequireLogin) onRequireLogin();
-      return;
-    }
-    saveToDashboard();
+    const created = saveToDashboard();
     setSubmitted(true);
-    setTimeout(() => {
-      const reviewsEl = document.getElementById('reviews');
-      if (reviewsEl) reviewsEl.scrollIntoView({ behavior: 'smooth' });
-    }, 600);
   };
 
   const handleWhatsAppBooking = () => {
-    if (!currentUser) {
-      alert("Please log in to your account before placing a service booking.");
-      if (onRequireLogin) onRequireLogin();
-      return;
-    }
-    saveToDashboard();
+    const booking = lastBooking || saveToDashboard();
     const text = `*NEW ONLINE SERVICE BOOKING REQUEST*\n` +
       `-----------------------------------\n` +
+      `*Booking Ref:* ${booking.id}\n` +
       `*Service:* ${activeService.title}\n` +
       `*Name:* ${formData.name || currentUser?.name || 'Not provided'}\n` +
       `*Phone:* ${formData.phone || currentUser?.phone || 'Not provided'}\n` +
@@ -101,14 +91,6 @@ export default function OnlineBookingSection({ currentUser, onRequireLogin }) {
         }}>
           <div 
             className="glass-card" 
-            onClickCapture={(e) => {
-              if (!currentUser) {
-                e.preventDefault();
-                e.stopPropagation();
-                alert("Please log in to your account before placing a service booking.");
-                if (onRequireLogin) onRequireLogin();
-              }
-            }}
             style={{
               padding: '3rem 2.5rem',
               position: 'relative'
@@ -318,30 +300,49 @@ export default function OnlineBookingSection({ currentUser, onRequireLogin }) {
                   <CheckCircle2 size={42} />
                 </div>
 
-                <h3 style={{ fontSize: '2rem', fontWeight: 900, color: '#FFF', marginBottom: '0.75rem' }}>
-                  Booking Request Received!
+                <h3 style={{ fontSize: '2rem', fontWeight: 900, color: '#FFF', marginBottom: '0.5rem' }}>
+                  Booking Order Confirmed!
                 </h3>
-                <p style={{ color: 'var(--text-muted)', fontSize: '1.05rem', maxWidth: '540px', margin: '0 auto 2rem auto', lineHeight: 1.6 }}>
-                  Thank you <strong>{formData.name}</strong>. Your request for <strong>{activeService.title}</strong> has been logged for <strong>{formData.date} ({formData.timeSlot})</strong>. Our operations team will call you shortly to confirm technician arrival.
+                <p style={{ color: 'var(--accent-gold)', fontSize: '1.1rem', fontWeight: 800, marginBottom: '1.5rem' }}>
+                  Booking Reference ID: {lastBooking?.id || 'NY-8901'}
                 </p>
 
-                <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '1rem' }}>
-                  <button 
-                    onClick={() => {
-                      const reviewsEl = document.getElementById('reviews');
-                      if (reviewsEl) reviewsEl.scrollIntoView({ behavior: 'smooth' });
-                    }} 
-                    className="btn btn-gold"
-                  >
-                    <span>⭐ View Customer Reviews</span>
-                  </button>
+                <div style={{
+                  background: 'rgba(255,255,255,0.03)',
+                  border: '1px solid var(--border-glass)',
+                  borderRadius: 'var(--radius-md)',
+                  padding: '1.5rem',
+                  maxWidth: '560px',
+                  margin: '0 auto 2rem auto',
+                  textAlign: 'left'
+                }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', fontSize: '0.9rem' }}>
+                    <div>
+                      <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: '0.75rem', textTransform: 'uppercase', fontWeight: 700 }}>Service Requested</span>
+                      <strong style={{ color: '#FFF' }}>{activeService.title}</strong>
+                    </div>
+                    <div>
+                      <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: '0.75rem', textTransform: 'uppercase', fontWeight: 700 }}>Customer Name</span>
+                      <strong style={{ color: '#FFF' }}>{formData.name || 'Customer'}</strong>
+                    </div>
+                    <div>
+                      <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: '0.75rem', textTransform: 'uppercase', fontWeight: 700 }}>Scheduled Date & Time</span>
+                      <strong style={{ color: '#FFF' }}>{formData.date} ({formData.timeSlot})</strong>
+                    </div>
+                    <div>
+                      <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: '0.75rem', textTransform: 'uppercase', fontWeight: 700 }}>Dispatch Status</span>
+                      <span style={{ color: '#E5B23A', fontWeight: 800, display: 'inline-block', background: 'rgba(229, 178, 58, 0.15)', padding: '0.15rem 0.5rem', borderRadius: '6px', fontSize: '0.8rem' }}>● Pending Technician</span>
+                    </div>
+                  </div>
+                </div>
 
+                <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '1rem' }}>
                   <button onClick={handleWhatsAppBooking} className="btn btn-whatsapp">
                     <MessageSquare size={18} />
-                    <span>Track on WhatsApp</span>
+                    <span>Send to WhatsApp Hotline</span>
                   </button>
 
-                  <button onClick={() => setSubmitted(false)} className="btn btn-outline">
+                  <button onClick={() => setSubmitted(false)} className="btn btn-gold">
                     <span>Book Another Service</span>
                   </button>
                 </div>
