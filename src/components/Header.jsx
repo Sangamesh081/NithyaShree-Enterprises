@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Phone, Mail, Clock, ShieldCheck, ChevronDown, Calendar, Menu, X, Sparkles } from 'lucide-react';
+import { Phone, Mail, Clock, ShieldCheck, ChevronDown, Calendar, Menu, X, Sparkles, User, Lock, LogIn, LogOut } from 'lucide-react';
 import { phoneNumbers, companyDetails } from '../data/servicesData';
 
-export default function Header({ onOpenBooking, onOpenCallModal }) {
+export default function Header({ onOpenBooking, activePage, onNavigate, currentUser, onLogout }) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [phoneDropdownOpen, setPhoneDropdownOpen] = useState(false);
@@ -18,6 +18,25 @@ export default function Header({ onOpenBooking, onOpenCallModal }) {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  const handleGoToBooking = (e) => {
+    if (e) e.preventDefault();
+    if (!currentUser) {
+      onNavigate('login');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+    if (activePage !== 'home') {
+      onNavigate('home');
+      setTimeout(() => {
+        const el = document.getElementById('booking');
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+      }, 150);
+    } else {
+      const el = document.getElementById('booking');
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
 
   return (
     <header className="header-wrapper" style={{ position: 'sticky', top: 0, zIndex: 900 }}>
@@ -39,6 +58,7 @@ export default function Header({ onOpenBooking, onOpenCallModal }) {
           {/* 1. Logo First (Left Column) */}
           <a 
             href="#" 
+            onClick={(e) => { e.preventDefault(); onNavigate('home'); }}
             className="header-logo-first"
             style={{ 
               textDecoration: 'none', 
@@ -72,19 +92,75 @@ export default function Header({ onOpenBooking, onOpenCallModal }) {
           </a>
 
           {/* 2. Desktop Nav Links (Middle Column) */}
-          <div className="desktop-links" style={{ display: 'flex', alignItems: 'center', gap: '1.75rem' }}>
-            <a href="#services" className="nav-item">Services</a>
-            <a href="#calculator" className="nav-item">Instant Quote</a>
-            <a href="#why-us" className="nav-item">Why Us</a>
-            <a href="#reviews" className="nav-item">Reviews</a>
-            <a href="#faq" className="nav-item">FAQ</a>
-            <a href="#contact" className="nav-item">Contact</a>
+          <div className="desktop-links" style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+            <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('home'); }} className="nav-item" style={{ color: activePage === 'home' ? 'var(--accent-gold)' : 'var(--text-main)' }}>Home</a>
+            <a href="#services" onClick={() => onNavigate('home')} className="nav-item">Services</a>
+            <a href="#booking" onClick={handleGoToBooking} className="nav-item" style={{ color: 'var(--accent-gold)', fontWeight: 800 }}>Book Online</a>
+            
+            {currentUser?.role === 'admin' ? (
+              <button 
+                onClick={() => onNavigate('admin')}
+                className="nav-item"
+                style={{ background: 'rgba(0, 210, 254, 0.15)', border: '1px solid #00D2FE', borderRadius: '20px', padding: '0.35rem 0.85rem', color: '#00D2FE', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.35rem', cursor: 'pointer' }}
+              >
+                <Lock size={14} />
+                <span>Admin Console</span>
+              </button>
+            ) : (
+              <button 
+                onClick={() => onNavigate('user')}
+                className="nav-item"
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: activePage === 'user' ? 'var(--accent-gold)' : '#00D2FE', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.35rem' }}
+              >
+                <User size={15} />
+                <span>My Bookings</span>
+              </button>
+            )}
           </div>
 
           {/* 3. Action Buttons (Right Column) */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', justifyContent: 'flex-end' }}>
+            {currentUser ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <button
+                  onClick={() => onNavigate(currentUser.role === 'admin' ? 'admin' : 'user')}
+                  className="btn btn-outline"
+                  style={{ padding: '0.55rem 0.95rem', fontSize: '0.82rem', borderColor: currentUser.role === 'admin' ? '#00D2FE' : 'var(--accent-gold)' }}
+                >
+                  <User size={14} />
+                  <span>{currentUser.name}</span>
+                </button>
+                <button
+                  onClick={onLogout}
+                  title="Log out"
+                  style={{ background: 'rgba(239, 68, 68, 0.15)', border: '1px solid #EF4444', color: '#EF4444', padding: '0.55rem', borderRadius: '8px', cursor: 'pointer' }}
+                >
+                  <LogOut size={14} />
+                </button>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', gap: '0.4rem' }}>
+                <button 
+                  onClick={() => onNavigate('login')}
+                  className="btn btn-outline"
+                  style={{ padding: '0.55rem 0.9rem', fontSize: '0.82rem', borderColor: 'rgba(255,255,255,0.2)' }}
+                >
+                  <LogIn size={14} />
+                  <span>Login</span>
+                </button>
+                <button 
+                  onClick={() => onNavigate('signup')}
+                  className="btn btn-outline"
+                  style={{ padding: '0.55rem 0.9rem', fontSize: '0.82rem', borderColor: 'var(--accent-gold)', color: 'var(--accent-gold)' }}
+                >
+                  <User size={14} />
+                  <span>Sign Up</span>
+                </button>
+              </div>
+            )}
+
             <button 
-              onClick={onOpenBooking}
+              onClick={handleGoToBooking}
               className="btn btn-gold"
               style={{ padding: '0.6rem 1.25rem', fontSize: '0.88rem' }}
             >
@@ -140,12 +216,11 @@ export default function Header({ onOpenBooking, onOpenCallModal }) {
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem', width: '100%', alignItems: 'center' }}>
-              <a href="#services" onClick={() => setMobileMenuOpen(false)} style={{ color: '#FFF', textDecoration: 'none', fontWeight: 600, fontSize: '1.05rem' }}>Services (12)</a>
-              <a href="#calculator" onClick={() => setMobileMenuOpen(false)} style={{ color: '#FFF', textDecoration: 'none', fontWeight: 600, fontSize: '1.05rem' }}>Cost Calculator</a>
-              <a href="#why-us" onClick={() => setMobileMenuOpen(false)} style={{ color: '#FFF', textDecoration: 'none', fontWeight: 600, fontSize: '1.05rem' }}>Why Choose Us</a>
-              <a href="#reviews" onClick={() => setMobileMenuOpen(false)} style={{ color: '#FFF', textDecoration: 'none', fontWeight: 600, fontSize: '1.05rem' }}>Customer Reviews</a>
-              <a href="#faq" onClick={() => setMobileMenuOpen(false)} style={{ color: '#FFF', textDecoration: 'none', fontWeight: 600, fontSize: '1.05rem' }}>FAQ</a>
-              <a href="#contact" onClick={() => setMobileMenuOpen(false)} style={{ color: '#FFF', textDecoration: 'none', fontWeight: 600, fontSize: '1.05rem' }}>Contact Info</a>
+              <a href="#" onClick={(e) => { e.preventDefault(); setMobileMenuOpen(false); onNavigate('home'); }} style={{ color: '#FFF', textDecoration: 'none', fontWeight: 700, fontSize: '1.05rem' }}>🏠 Website Home</a>
+              <a href="#services" onClick={() => { setMobileMenuOpen(false); onNavigate('home'); }} style={{ color: '#FFF', textDecoration: 'none', fontWeight: 600, fontSize: '1.05rem' }}>Services (12)</a>
+              <a href="#booking" onClick={() => { setMobileMenuOpen(false); onNavigate('home'); }} style={{ color: 'var(--accent-gold)', textDecoration: 'none', fontWeight: 700, fontSize: '1.05rem' }}>📅 Book Online</a>
+              <a href="#" onClick={(e) => { e.preventDefault(); setMobileMenuOpen(false); onNavigate('user'); }} style={{ color: '#00D2FE', textDecoration: 'none', fontWeight: 800, fontSize: '1.05rem' }}>👤 User Portal (My Bookings)</a>
+              <a href="#" onClick={(e) => { e.preventDefault(); setMobileMenuOpen(false); onNavigate('admin'); }} style={{ color: 'var(--text-muted)', textDecoration: 'none', fontWeight: 800, fontSize: '1.05rem' }}>🔒 Admin Console</a>
             </div>
             
             <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '1rem', width: '100%', display: 'flex', flexDirection: 'column', gap: '0.5rem', alignItems: 'center' }}>

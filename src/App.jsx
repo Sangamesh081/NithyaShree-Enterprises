@@ -14,7 +14,15 @@ import BookingModal from './components/BookingModal';
 import { phoneNumbers } from './data/servicesData';
 import { X, Phone } from 'lucide-react';
 
+import OnlineBookingSection from './components/OnlineBookingSection';
+import UserPortal from './components/UserPortal';
+import AdminPortal from './components/AdminPortal';
+import LoginPage from './components/LoginPage';
+import SignupPage from './components/SignupPage';
+
 export default function App() {
+  const [activePage, setActivePage] = useState('home'); // 'home' | 'user' | 'admin' | 'login' | 'signup'
+  const [currentUser, setCurrentUser] = useState(null);
   const [bookingModalOpen, setBookingModalOpen] = useState(false);
   const [selectedService, setSelectedService] = useState(null);
   const [detailModalService, setDetailModalService] = useState(null);
@@ -23,14 +31,53 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState('');
 
   const handleOpenBooking = (service = null) => {
+    if (!currentUser) {
+      setActivePage('login');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
     setSelectedService(service);
     setBookingModalOpen(true);
   };
 
+  const handleOpenDetailModal = (service) => {
+    if (!currentUser) {
+      setActivePage('login');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+    setDetailModalService(service);
+  };
+
   const handleBookWithQuote = (quoteData) => {
+    if (!currentUser) {
+      setActivePage('login');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
     setSelectedService(quoteData.service);
     setQuoteDetails(quoteData);
     setBookingModalOpen(true);
+  };
+
+  const handleLoginSuccess = (userData) => {
+    setCurrentUser(userData);
+    if (userData.role === 'admin') {
+      setActivePage('admin');
+    } else {
+      setActivePage('home');
+      setTimeout(() => {
+        const bookingElem = document.getElementById('booking');
+        if (bookingElem) {
+          bookingElem.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 150);
+    }
+  };
+
+  const handleLogout = () => {
+    setCurrentUser(null);
+    setActivePage('home');
   };
 
   return (
@@ -39,40 +86,80 @@ export default function App() {
       <Header
         onOpenBooking={() => handleOpenBooking()}
         onOpenCallModal={() => setCallModalOpen(true)}
+        activePage={activePage}
+        currentUser={currentUser}
+        onLogout={handleLogout}
+        onNavigate={(page) => {
+          setActivePage(page);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
       />
 
-      {/* Hero Section */}
-      <Hero
-        onOpenBooking={() => handleOpenBooking()}
-        onOpenCallModal={() => setCallModalOpen(true)}
-        setSearchQuery={setSearchQuery}
-      />
+      {/* Page Router */}
+      {activePage === 'login' ? (
+        <LoginPage
+          onLoginSuccess={handleLoginSuccess}
+          onNavigateHome={() => setActivePage('home')}
+          onNavigateSignup={() => setActivePage('signup')}
+        />
+      ) : activePage === 'signup' ? (
+        <SignupPage
+          onNavigateLogin={() => setActivePage('login')}
+        />
+      ) : activePage === 'user' ? (
+        <UserPortal 
+          onBookNew={() => handleOpenBooking()} 
+          onNavigateHome={() => setActivePage('home')} 
+        />
+      ) : activePage === 'admin' ? (
+        <AdminPortal 
+          onNavigateHome={() => setActivePage('home')} 
+        />
+      ) : (
+        <>
+          {/* Hero Section */}
+          <Hero
+            onOpenBooking={() => handleOpenBooking()}
+            onOpenCallModal={() => setCallModalOpen(true)}
+            setSearchQuery={setSearchQuery}
+          />
 
-      {/* 5 Core Value Pillars Bar */}
-      <ValuePillars />
+          {/* 5 Core Value Pillars Bar */}
+          <ValuePillars />
 
-      {/* Services Grid (12 Services) */}
-      <ServicesGrid
-        onSelectService={(service) => setDetailModalService(service)}
-        onBookService={(service) => handleOpenBooking(service)}
-        searchQuery={searchQuery}
-      />
+          {/* Services Grid (12 Services) */}
+          <ServicesGrid
+            onSelectService={(service) => handleOpenDetailModal(service)}
+            onBookService={(service) => handleOpenBooking(service)}
+            searchQuery={searchQuery}
+          />
 
-      {/* Interactive Instant Quote Calculator */}
-      <QuoteCalculator
-        onBookWithQuote={handleBookWithQuote}
-      />
+          {/* Interactive Instant Quote Calculator */}
+          <QuoteCalculator
+            onBookWithQuote={handleBookWithQuote}
+          />
 
-      {/* Why Choose Us & Process Workflow */}
-      <WhyChooseUs
-        onOpenBooking={() => handleOpenBooking()}
-      />
+          {/* Embedded Online Booking Section */}
+          <OnlineBookingSection 
+            currentUser={currentUser}
+            onRequireLogin={() => {
+              setActivePage('login');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+          />
 
-      {/* Testimonials */}
-      <Testimonials />
+          {/* Why Choose Us & Process Workflow */}
+          <WhyChooseUs
+            onOpenBooking={() => handleOpenBooking()}
+          />
 
-      {/* FAQ Accordion */}
-      <FAQ />
+          {/* Testimonials */}
+          <Testimonials />
+
+          {/* FAQ Accordion */}
+          <FAQ />
+        </>
+      )}
 
       {/* Footer */}
       <Footer
@@ -96,6 +183,11 @@ export default function App() {
         <BookingModal
           initialService={selectedService}
           quoteDetails={quoteDetails}
+          currentUser={currentUser}
+          onRequireLogin={() => {
+            setActivePage('login');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
           onClose={() => {
             setBookingModalOpen(false);
             setQuoteDetails(null);

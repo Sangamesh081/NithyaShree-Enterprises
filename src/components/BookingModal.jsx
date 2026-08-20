@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
 import { X, Calendar, CheckCircle2, MessageSquare, Phone, Send } from 'lucide-react';
 import { servicesData, phoneNumbers } from '../data/servicesData';
+import { saveBooking } from '../data/mockBookings';
 
-export default function BookingModal({ initialService, quoteDetails, onClose }) {
+export default function BookingModal({ initialService, quoteDetails, onClose, currentUser, onRequireLogin }) {
   const [selectedServiceId, setSelectedServiceId] = useState(
     initialService ? initialService.id : servicesData[0].id
   );
   const [formData, setFormData] = useState({
-    name: '',
-    phone: '',
-    address: '',
+    name: currentUser?.name || '',
+    phone: currentUser?.phone || '',
+    address: currentUser?.address || '',
     date: new Date().toISOString().split('T')[0],
     timeSlot: 'Morning (9 AM - 12 PM)',
     notes: ''
@@ -18,18 +19,52 @@ export default function BookingModal({ initialService, quoteDetails, onClose }) 
 
   const activeService = servicesData.find(s => s.id === Number(selectedServiceId)) || servicesData[0];
 
+  const saveToDashboard = () => {
+    const newBookingObj = {
+      id: `NY-${Math.floor(8000 + Math.random() * 1000)}`,
+      customerName: formData.name || currentUser?.name || 'Customer User',
+      phone: formData.phone || currentUser?.phone || '+91 9876543210',
+      address: formData.address || currentUser?.address || 'Address provided via Web Form',
+      serviceTitle: activeService.title,
+      serviceId: activeService.id,
+      date: formData.date,
+      timeSlot: formData.timeSlot,
+      status: 'Pending',
+      technicianName: 'Technician Assignment Pending',
+      technicianPhone: '-',
+      estimatedCost: quoteDetails ? `₹${quoteDetails.minEst} - ₹${quoteDetails.maxEst}` : activeService.estimatedPrice,
+      notes: formData.notes || 'Submitted via Booking Modal',
+      createdAt: new Date().toISOString().replace('T', ' ').substring(0, 16)
+    };
+    saveBooking(newBookingObj);
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (!currentUser) {
+      alert("Please log in to your account before placing a service booking.");
+      onClose();
+      if (onRequireLogin) onRequireLogin();
+      return;
+    }
+    saveToDashboard();
     setSubmitted(true);
   };
 
   const handleWhatsAppBooking = () => {
+    if (!currentUser) {
+      alert("Please log in to your account before placing a service booking.");
+      onClose();
+      if (onRequireLogin) onRequireLogin();
+      return;
+    }
+    saveToDashboard();
     const text = `*NEW SERVICE BOOKING REQUEST*\n` +
       `-----------------------------------\n` +
       `*Service:* ${activeService.title}\n` +
-      `*Name:* ${formData.name || 'Not provided'}\n` +
-      `*Phone:* ${formData.phone || 'Not provided'}\n` +
-      `*Address:* ${formData.address || 'Not provided'}\n` +
+      `*Name:* ${formData.name || currentUser?.name || 'Not provided'}\n` +
+      `*Phone:* ${formData.phone || currentUser?.phone || 'Not provided'}\n` +
+      `*Address:* ${formData.address || currentUser?.address || 'Not provided'}\n` +
       `*Preferred Date:* ${formData.date}\n` +
       `*Time Slot:* ${formData.timeSlot}\n` +
       (quoteDetails ? `*Est. Budget:* ₹${quoteDetails.minEst} - ₹${quoteDetails.maxEst}\n` : '') +

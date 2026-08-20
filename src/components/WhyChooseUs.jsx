@@ -64,24 +64,30 @@ export default function WhyChooseUs({ onOpenBooking }) {
                 key={i}
                 className="glass-card"
                 style={{
-                  padding: '2rem',
+                  padding: '2.2rem 1.5rem',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justify: 'center',
                   textAlign: 'center',
                   background: 'linear-gradient(135deg, rgba(13, 26, 45, 0.9) 0%, rgba(7, 13, 25, 0.9) 100%)'
                 }}
               >
                 <div style={{
-                  width: 50,
-                  height: 50,
+                  width: 60,
+                  height: 60,
                   borderRadius: '50%',
-                  background: 'rgba(255,183,3,0.15)',
-                  border: '1px solid var(--accent-gold)',
+                  background: 'rgba(255, 183, 3, 0.15)',
+                  border: '1.5px solid var(--accent-gold)',
                   color: 'var(--accent-gold)',
                   display: 'flex',
                   alignItems: 'center',
                   justify: 'center',
-                  margin: '0 auto 1rem auto'
+                  margin: '0 auto 1.25rem auto',
+                  boxShadow: '0 0 20px rgba(255, 183, 3, 0.3)',
+                  flexShrink: 0
                 }}>
-                  <IconComp size={24} />
+                  <IconComp size={28} style={{ display: 'block', margin: '0 auto', flexShrink: 0 }} />
                 </div>
 
                 <div style={{
@@ -89,7 +95,9 @@ export default function WhyChooseUs({ onOpenBooking }) {
                   fontSize: '2.8rem',
                   fontWeight: 900,
                   color: 'var(--accent-gold)',
-                  lineHeight: 1
+                  lineHeight: 1,
+                  textAlign: 'center',
+                  width: '100%'
                 }}>
                   {stat.value}
                 </div>
@@ -98,7 +106,9 @@ export default function WhyChooseUs({ onOpenBooking }) {
                   fontSize: '0.95rem',
                   fontWeight: 700,
                   color: '#FFF',
-                  marginTop: '0.5rem'
+                  marginTop: '0.5rem',
+                  textAlign: 'center',
+                  width: '100%'
                 }}>
                   {stat.label}
                 </div>
