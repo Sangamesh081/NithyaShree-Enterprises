@@ -21,96 +21,6 @@ export default function Header({ onOpenBooking, onOpenCallModal }) {
 
   return (
     <header className="header-wrapper" style={{ position: 'sticky', top: 0, zIndex: 900 }}>
-      {/* Top Bar with All 4 Contact Numbers */}
-      <div className="top-bar" style={{
-        background: '#040914',
-        borderBottom: '1px solid rgba(255,183,3,0.15)',
-        padding: '0.45rem 0',
-        fontSize: '0.85rem'
-      }}>
-        <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', flexWrap: 'wrap' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#2ECC71', fontWeight: 600 }}>
-              <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#2ECC71', boxShadow: '0 0 10px #2ECC71', display: 'inline-block' }}></span>
-              <span>24/7 Service Available</span>
-            </div>
-            
-            <a href={`mailto:${companyDetails.email}`} style={{ color: 'var(--text-muted)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.35rem' }} className="top-link">
-              <Mail size={14} color="var(--accent-gold)" />
-              <span>{companyDetails.email}</span>
-            </a>
-          </div>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            {/* Quick Call Dropdown Trigger */}
-            <div style={{ position: 'relative' }}>
-              <button 
-                onClick={() => setPhoneDropdownOpen(!phoneDropdownOpen)}
-                style={{
-                  background: 'rgba(255,183,3,0.1)',
-                  border: '1px solid rgba(255,183,3,0.3)',
-                  color: 'var(--accent-gold)',
-                  padding: '0.25rem 0.75rem',
-                  borderRadius: '20px',
-                  fontSize: '0.82rem',
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.35rem'
-                }}
-              >
-                <Phone size={13} />
-                <span>Call Hotline (4 Lines)</span>
-                <ChevronDown size={13} style={{ transform: phoneDropdownOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
-              </button>
-
-              {phoneDropdownOpen && (
-                <div style={{
-                  position: 'absolute',
-                  right: 0,
-                  top: '120%',
-                  background: 'var(--bg-card)',
-                  border: '1px solid var(--border-glass)',
-                  borderRadius: 'var(--radius-md)',
-                  boxShadow: 'var(--shadow-card)',
-                  padding: '0.75rem',
-                  minWidth: '240px',
-                  zIndex: 1000
-                }}>
-                  <div style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '0.5rem', fontWeight: 700 }}>
-                    Direct Hotline Numbers:
-                  </div>
-                  {phoneNumbers.map((p, idx) => (
-                    <a
-                      key={idx}
-                      href={`tel:${p.raw}`}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justify: 'space-between',
-                        padding: '0.5rem 0.6rem',
-                        color: '#FFF',
-                        textDecoration: 'none',
-                        borderRadius: '6px',
-                        fontSize: '0.88rem',
-                        fontWeight: 600,
-                        transition: 'background 0.2s'
-                      }}
-                      onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,183,3,0.15)'}
-                      onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-                    >
-                      <span style={{ color: 'var(--accent-gold)' }}>{p.display}</span>
-                      <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>{p.label}</span>
-                    </a>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* Navigation Header */}
       <nav style={{
         background: isScrolled ? 'rgba(7, 13, 25, 0.95)' : 'rgba(7, 13, 25, 0.85)',
@@ -173,27 +83,6 @@ export default function Header({ onOpenBooking, onOpenCallModal }) {
 
           {/* 3. Action Buttons (Right Column) */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', justifyContent: 'flex-end' }}>
-            <button 
-              onClick={onOpenCallModal}
-              className="btn-call-quick"
-              style={{
-                background: 'rgba(255,183,3,0.12)',
-                border: '1px solid rgba(255,183,3,0.3)',
-                color: 'var(--accent-gold)',
-                padding: '0.55rem 0.85rem',
-                borderRadius: '8px',
-                fontSize: '0.82rem',
-                fontWeight: 700,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.35rem'
-              }}
-            >
-              <Phone size={15} />
-              <span>Call Hotline</span>
-            </button>
-
             <button 
               onClick={onOpenBooking}
               className="btn btn-gold"

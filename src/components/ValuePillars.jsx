@@ -45,8 +45,8 @@ export default function ValuePillars() {
                 className="pillar-card"
               >
                 <div style={{
-                  width: 52,
-                  height: 52,
+                  width: 56,
+                  height: 56,
                   borderRadius: '50%',
                   background: `rgba(255, 183, 3, 0.15)`,
                   border: `1.5px solid ${pillar.color}`,
@@ -55,9 +55,11 @@ export default function ValuePillars() {
                   justify: 'center',
                   marginBottom: '1rem',
                   color: pillar.color,
-                  boxShadow: `0 0 15px rgba(255, 183, 3, 0.2)`
+                  boxShadow: `0 0 18px rgba(255, 183, 3, 0.25)`,
+                  margin: '0 auto 1rem auto',
+                  flexShrink: 0
                 }}>
-                  <IconComponent size={26} />
+                  <IconComponent size={26} style={{ display: 'block', margin: '0 auto', flexShrink: 0 }} />
                 </div>
 
                 <h4 style={{

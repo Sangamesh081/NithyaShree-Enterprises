@@ -121,21 +121,22 @@ export default function ServicesGrid({ onSelectService, onBookService, searchQue
                 )}
 
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
-                  {/* Centered Icon Box */}
+                  {/* Centered Circle Icon Box */}
                   <div style={{
-                    width: 62,
-                    height: 62,
-                    borderRadius: '18px',
+                    width: 64,
+                    height: 64,
+                    borderRadius: '50%',
                     background: 'rgba(229, 178, 58, 0.14)',
-                    border: '1.5px solid rgba(229, 178, 58, 0.4)',
+                    border: '1.5px solid rgba(229, 178, 58, 0.5)',
                     display: 'flex',
                     alignItems: 'center',
                     justify: 'center',
                     color: 'var(--accent-gold)',
                     margin: '0 auto 1.25rem auto',
-                    boxShadow: '0 6px 20px rgba(229, 178, 58, 0.2)'
+                    boxShadow: '0 6px 20px rgba(229, 178, 58, 0.25)',
+                    flexShrink: 0
                   }}>
-                    <IconComp size={30} />
+                    <IconComp size={28} style={{ display: 'block', margin: '0 auto', flexShrink: 0 }} />
                   </div>
 
                   {/* Category Tag & Title - Centered */}

@@ -123,11 +123,6 @@ export default function Hero({ onOpenBooking, onOpenCallModal, setSearchQuery })
                 <span>Book Service Online</span>
               </button>
 
-              <button onClick={onOpenCallModal} className="btn btn-outline">
-                <Phone size={18} />
-                <span>Call Hotline Now</span>
-              </button>
-
               <a
                 href={`https://wa.me/916362917433?text=${encodeURIComponent("Hello Nityashree Enterprises, I would like to inquire about your services.")}`}
                 target="_blank"

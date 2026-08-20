@@ -133,19 +133,20 @@ export default function WhyChooseUs({ onOpenBooking }) {
               return (
                 <div key={idx} style={{ position: 'relative', textAlign: 'center' }}>
                   <div style={{
-                    width: 60,
-                    height: 60,
-                    borderRadius: '18px',
+                    width: 62,
+                    height: 62,
+                    borderRadius: '50%',
                     background: 'linear-gradient(135deg, #1E3E62 0%, #0B192C 100%)',
-                    border: '1px solid var(--accent-gold)',
+                    border: '1.5px solid var(--accent-gold)',
                     color: 'var(--accent-gold)',
                     display: 'flex',
                     alignItems: 'center',
                     justify: 'center',
                     margin: '0 auto 1.25rem auto',
-                    boxShadow: 'var(--shadow-gold)'
+                    boxShadow: 'var(--shadow-gold)',
+                    flexShrink: 0
                   }}>
-                    <StepIcon size={26} />
+                    <StepIcon size={26} style={{ display: 'block', margin: '0 auto' }} />
                   </div>
 
                   <span style={{
