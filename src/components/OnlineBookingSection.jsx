@@ -211,7 +211,7 @@ export default function OnlineBookingSection({ currentUser, onRequireLogin }) {
                   </label>
                   <input
                     type="text"
-                    placeholder="House/Flat No., Street, Area/Locality, City (e.g. Indiranagar, Bengaluru)"
+                    placeholder="House/Flat No., Street, Area/Locality, City (e.g. Navanagar, Bagalkot)"
                     value={formData.address}
                     onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                     required

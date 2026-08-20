@@ -12,7 +12,7 @@ export const companyDetails = {
   email: "nityashreeenterprises2024@gmail.com",
   established: "2024",
   workingHours: "24/7 Emergency Service Available | Mon-Sun: 8:00 AM - 9:00 PM",
-  address: "Bengaluru & Surrounding Regions, Karnataka, India"
+  address: "Bagalkot & Surrounding Regions, Karnataka, India"
 };
 
 export const valuePillars = [
@@ -325,7 +325,7 @@ export const faqData = [
   },
   {
     question: "What areas in Karnataka do you serve?",
-    answer: "We primarily serve all areas of Bengaluru (Bangalore Urban & Rural) and surrounding regions. For specialized engineering, construction, and AMC projects, we operate across Karnataka."
+    answer: "We primarily serve all areas of Bagalkot and surrounding regions. For specialized engineering, construction, and AMC projects, we operate across Karnataka."
   },
   {
     question: "Do you offer warranties on your work?",
