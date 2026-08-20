@@ -353,7 +353,20 @@ export default function BookingModal({ initialService, quoteDetails, onClose, cu
               <div>• Address: {formData.address}</div>
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '0.85rem', flexWrap: 'wrap' }}>
+              <button 
+                onClick={() => {
+                  onClose();
+                  setTimeout(() => {
+                    const reviewsEl = document.getElementById('reviews');
+                    if (reviewsEl) reviewsEl.scrollIntoView({ behavior: 'smooth' });
+                  }, 200);
+                }} 
+                className="btn btn-gold"
+              >
+                <span>⭐ View Customer Reviews</span>
+              </button>
+
               <button onClick={handleWhatsAppBooking} className="btn btn-whatsapp">
                 <MessageSquare size={18} />
                 <span>Send to WhatsApp</span>

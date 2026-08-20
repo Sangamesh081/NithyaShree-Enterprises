@@ -76,10 +76,24 @@ export default function UserPortal({ onBookNew, onNavigateHome }) {
             </p>
           </div>
 
-          <div style={{ display: 'flex', gap: '0.85rem' }}>
+          <div style={{ display: 'flex', gap: '0.85rem', flexWrap: 'wrap' }}>
             <button onClick={onBookNew} className="btn btn-gold">
               <Plus size={18} />
               <span>Book New Service</span>
+            </button>
+            <button 
+              onClick={() => {
+                if (onNavigateHome) onNavigateHome();
+                setTimeout(() => {
+                  const reviewsEl = document.getElementById('reviews');
+                  if (reviewsEl) reviewsEl.scrollIntoView({ behavior: 'smooth' });
+                }, 150);
+              }} 
+              className="btn btn-outline"
+              style={{ borderColor: 'var(--accent-gold)', color: 'var(--accent-gold)' }}
+            >
+              <MessageSquare size={16} />
+              <span>Submit Feedback</span>
             </button>
             <button onClick={onNavigateHome} className="btn btn-outline">
               <span>Back to Home</span>

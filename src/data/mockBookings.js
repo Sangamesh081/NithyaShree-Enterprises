@@ -197,3 +197,57 @@ export function validateUserLogin(emailOrPhone, inputPassword) {
 
   return { success: true, user: foundUser };
 }
+
+const defaultTestimonials = [
+  {
+    id: 1,
+    name: "Rajesh Kumar",
+    role: "Homeowner, Navanagar",
+    service: "Electrical Installation",
+    rating: 5,
+    comment: "Nityashree Enterprises replaced our main distribution panel and fixed all tripping issues in record time. Professional work!",
+    date: "2026-08-15"
+  },
+  {
+    id: 2,
+    name: "Sunitha Patil",
+    role: "Apartment Owner, Vidyagiri",
+    service: "Plumbing Services",
+    rating: 5,
+    comment: "Prompt plumbing emergency response! Their technician arrived within 30 minutes and resolved a major kitchen pipe leak.",
+    date: "2026-08-17"
+  },
+  {
+    id: 3,
+    name: "Mahesh Deshmukh",
+    role: "Commercial Manager, Bagalkot",
+    service: "Interior & Exterior Painting",
+    rating: 5,
+    comment: "Excellent painting finish for our office building. Clean execution, top grade royal paint, and fair pricing.",
+    date: "2026-08-18"
+  }
+];
+
+export function getStoredFeedbacks() {
+  try {
+    const data = localStorage.getItem('nityashree_feedbacks');
+    if (!data) return defaultTestimonials;
+    return JSON.parse(data);
+  } catch (e) {
+    return defaultTestimonials;
+  }
+}
+
+export function saveFeedback(newFeedback) {
+  const current = getStoredFeedbacks();
+  const updated = [newFeedback, ...current];
+  try {
+    localStorage.setItem('nityashree_feedbacks', JSON.stringify(updated));
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new Event('nityashree_feedback_updated'));
+    }
+  } catch (e) {
+    console.error("Storage error", e);
+  }
+  return updated;
+}

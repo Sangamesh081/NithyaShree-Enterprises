@@ -154,7 +154,13 @@ export default function App() {
           />
 
           {/* Testimonials */}
-          <Testimonials />
+          <Testimonials 
+            currentUser={currentUser}
+            onRequireLogin={() => {
+              setActivePage('login');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+          />
 
           {/* FAQ Accordion */}
           <FAQ />

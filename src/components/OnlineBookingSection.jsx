@@ -46,6 +46,10 @@ export default function OnlineBookingSection({ currentUser, onRequireLogin }) {
     }
     saveToDashboard();
     setSubmitted(true);
+    setTimeout(() => {
+      const reviewsEl = document.getElementById('reviews');
+      if (reviewsEl) reviewsEl.scrollIntoView({ behavior: 'smooth' });
+    }, 600);
   };
 
   const handleWhatsAppBooking = () => {
@@ -322,6 +326,16 @@ export default function OnlineBookingSection({ currentUser, onRequireLogin }) {
                 </p>
 
                 <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '1rem' }}>
+                  <button 
+                    onClick={() => {
+                      const reviewsEl = document.getElementById('reviews');
+                      if (reviewsEl) reviewsEl.scrollIntoView({ behavior: 'smooth' });
+                    }} 
+                    className="btn btn-gold"
+                  >
+                    <span>⭐ View Customer Reviews</span>
+                  </button>
+
                   <button onClick={handleWhatsAppBooking} className="btn btn-whatsapp">
                     <MessageSquare size={18} />
                     <span>Track on WhatsApp</span>
