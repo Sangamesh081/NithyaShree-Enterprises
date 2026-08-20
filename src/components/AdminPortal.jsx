@@ -3,7 +3,7 @@ import {
   ShieldCheck, Lock, CheckCircle2, AlertCircle, Phone, MapPin, 
   Calendar, RefreshCw, Search, Plus, UserCheck, DollarSign, Filter, LogOut, Edit, Trash2, Eye, EyeOff
 } from 'lucide-react';
-import { getStoredBookings, saveBooking, updateBookingStatus, deleteBooking, syncWithServer } from '../data/mockBookings';
+import { getStoredBookings, saveBooking, updateBookingStatus, deleteBooking, fetchRemoteBookings } from '../data/mockBookings';
 import { servicesData } from '../data/servicesData';
 
 export default function AdminPortal({ onNavigateHome }) {
@@ -30,14 +30,15 @@ export default function AdminPortal({ onNavigateHome }) {
   });
 
   useEffect(() => {
-    const refreshData = () => {
-      setBookings(getStoredBookings());
+    const refreshData = async () => {
+      const liveData = await fetchRemoteBookings();
+      setBookings(liveData && liveData.length > 0 ? liveData : getStoredBookings());
     };
     refreshData();
 
     window.addEventListener('nityashree_booking_updated', refreshData);
     window.addEventListener('storage', refreshData);
-    const interval = setInterval(refreshData, 2000); // 2-second heartbeat refresh
+    const interval = setInterval(refreshData, 1500); // 1.5-second live refresh
 
     return () => {
       window.removeEventListener('nityashree_booking_updated', refreshData);
@@ -243,9 +244,9 @@ export default function AdminPortal({ onNavigateHome }) {
 
           <div style={{ display: 'flex', gap: '0.85rem', flexWrap: 'wrap' }}>
             <button 
-              onClick={() => {
-                syncWithServer();
-                setBookings(getStoredBookings());
+              onClick={async () => {
+                const live = await fetchRemoteBookings();
+                setBookings(live);
               }} 
               className="btn btn-outline"
               style={{ borderColor: 'var(--accent-gold)', color: 'var(--accent-gold)' }}

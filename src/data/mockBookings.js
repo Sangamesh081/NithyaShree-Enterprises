@@ -1,38 +1,49 @@
 export const initialBookings = [];
 
-// Helper to safely get host for API calls
-function getApiUrl(path) {
-  if (typeof window === 'undefined') return `/api${path}`;
-  // Use location.hostname so mobile devices accessing via http://<IP>:5173 hit http://<IP>:3001 or proxied /api
-  return `/api${path}`;
+// Get candidate API endpoints to ensure cross-device network connectivity
+function getApiEndpoints(path) {
+  if (typeof window === 'undefined') return [`/api${path}`];
+  
+  const host = window.location.hostname || 'localhost';
+  const endpoints = [
+    `/api${path}`,
+    `http://${host}:3001/api${path}`
+  ];
+
+  // Unique clean list
+  return Array.from(new Set(endpoints));
 }
 
-export function syncWithServer() {
-  if (typeof window === 'undefined') return;
-  fetch(getApiUrl('/bookings'))
-    .then(res => {
-      if (res.ok) return res.json();
-      throw new Error('Network error');
-    })
-    .then(remoteBookings => {
-      if (Array.isArray(remoteBookings)) {
-        const local = getStoredBookings();
-        // Compare to see if updated
-        if (JSON.stringify(remoteBookings) !== JSON.stringify(local)) {
-          localStorage.setItem('nityashree_bookings', JSON.stringify(remoteBookings));
-          window.dispatchEvent(new Event('nityashree_booking_updated'));
+// Robust async fetch from server
+export async function fetchRemoteBookings() {
+  if (typeof window === 'undefined') return [];
+
+  const endpoints = getApiEndpoints('/bookings');
+  for (const url of endpoints) {
+    try {
+      const res = await fetch(url, { cache: 'no-store' });
+      if (res.ok) {
+        const remoteData = await res.json();
+        if (Array.isArray(remoteData)) {
+          const local = getStoredBookings();
+          if (JSON.stringify(remoteData) !== JSON.stringify(local)) {
+            localStorage.setItem('nityashree_bookings', JSON.stringify(remoteData));
+            window.dispatchEvent(new Event('nityashree_booking_updated'));
+          }
+          return remoteData;
         }
       }
-    })
-    .catch(err => {
-      // Quiet fail to localStorage fallback
-    });
+    } catch (e) {
+      // Try next endpoint fallback
+    }
+  }
+  return getStoredBookings();
 }
 
-// Start auto-sync heartbeat every 2.5 seconds
+// Start auto-sync heartbeat every 2 seconds
 if (typeof window !== 'undefined') {
-  syncWithServer();
-  setInterval(syncWithServer, 2500);
+  fetchRemoteBookings();
+  setInterval(fetchRemoteBookings, 2000);
 }
 
 export function getStoredBookings() {
@@ -61,14 +72,26 @@ export function saveBooking(newBooking) {
     console.error("Storage error", e);
   }
 
-  // Sync to central backend API asynchronously
-  fetch(getApiUrl('/bookings'), {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(newBooking)
-  })
-  .then(() => syncWithServer())
-  .catch(err => console.error("Remote sync error", err));
+  // Asynchronously send to API server endpoints
+  const endpoints = getApiEndpoints('/bookings');
+  (async () => {
+    for (const url of endpoints) {
+      try {
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(newBooking)
+        });
+        if (res.ok) {
+          console.log('[Sync] Posted booking successfully to:', url);
+          fetchRemoteBookings();
+          break;
+        }
+      } catch (err) {
+        console.warn('[Sync] Failed posting to:', url);
+      }
+    }
+  })();
 
   return updated;
 }
@@ -96,14 +119,25 @@ export function updateBookingStatus(id, newStatus, technicianName, technicianPho
     console.error("Storage error", e);
   }
 
-  // Sync update to central backend API
-  fetch(getApiUrl(`/bookings/${id}`), {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ status: newStatus, technicianName, technicianPhone })
-  })
-  .then(() => syncWithServer())
-  .catch(err => console.error("Remote update error", err));
+  // Sync update to API endpoints
+  const endpoints = getApiEndpoints(`/bookings/${id}`);
+  (async () => {
+    for (const url of endpoints) {
+      try {
+        const res = await fetch(url, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: newStatus, technicianName, technicianPhone })
+        });
+        if (res.ok) {
+          fetchRemoteBookings();
+          break;
+        }
+      } catch (err) {
+        // Continue fallback
+      }
+    }
+  })();
 
   return updated;
 }
@@ -121,12 +155,21 @@ export function deleteBooking(id) {
     console.error("Storage error", e);
   }
 
-  // Sync deletion to central backend API
-  fetch(getApiUrl(`/bookings/${id}`), {
-    method: 'DELETE'
-  })
-  .then(() => syncWithServer())
-  .catch(err => console.error("Remote delete error", err));
+  // Sync deletion to API endpoints
+  const endpoints = getApiEndpoints(`/bookings/${id}`);
+  (async () => {
+    for (const url of endpoints) {
+      try {
+        const res = await fetch(url, { method: 'DELETE' });
+        if (res.ok) {
+          fetchRemoteBookings();
+          break;
+        }
+      } catch (err) {
+        // Continue fallback
+      }
+    }
+  })();
 
   return updated;
 }
@@ -169,12 +212,19 @@ export function registerNewUser(userData) {
     console.error("Storage error", e);
   }
 
-  // Sync user to server API
-  fetch(getApiUrl('/users'), {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(userData)
-  }).catch(err => console.error("Remote user sync error", err));
+  const endpoints = getApiEndpoints('/users');
+  (async () => {
+    for (const url of endpoints) {
+      try {
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(userData)
+        });
+        if (res.ok) break;
+      } catch (err) {}
+    }
+  })();
 
   return { success: true, user: userData };
 }

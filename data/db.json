@@ -1,0 +1,16 @@
+{
+  "bookings": [
+    {
+      "id": "NY-MOBILE-TEST",
+      "customerName": "Mobile Phone Test",
+      "serviceTitle": "Electrical Installation",
+      "phone": "+91 9900112233"
+    },
+    {
+      "id": "NY-9999",
+      "customerName": "Mobile User",
+      "serviceTitle": "Plumbing Services"
+    }
+  ],
+  "users": []
+}
