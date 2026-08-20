@@ -30,6 +30,29 @@ export default function Hero({ onOpenBooking, onOpenCallModal, setSearchQuery })
           
           {/* Hero Left Text & Actions */}
           <div>
+            <div style={{ marginBottom: '1.25rem' }}>
+              <div style={{
+                background: '#FFFFFF',
+                padding: '0.45rem 1.1rem',
+                borderRadius: '14px',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justify: 'center',
+                boxShadow: '0 6px 25px rgba(255, 255, 255, 0.25)'
+              }}>
+                <img 
+                  src="/logo.png" 
+                  alt="Nityashree Enterprises Logo" 
+                  style={{ 
+                    height: '65px', 
+                    width: 'auto', 
+                    maxWidth: '280px',
+                    objectFit: 'contain'
+                  }} 
+                />
+              </div>
+            </div>
+
             <div className="badge-gold" style={{ marginBottom: '1.25rem' }}>
               <Star size={14} fill="var(--accent-gold)" />
               <span>A2Z SOLUTION FOR EVERY NEED</span>

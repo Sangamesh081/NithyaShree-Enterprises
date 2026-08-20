@@ -50,6 +50,26 @@ export default function BookingModal({ initialService, quoteDetails, onClose }) 
         {!submitted ? (
           <div>
             <div style={{ textAlign: 'center', marginBottom: '1.75rem' }}>
+              <div style={{
+                background: '#FFFFFF',
+                padding: '0.4rem 1rem',
+                borderRadius: '12px',
+                display: 'inline-block',
+                margin: '0 auto 0.85rem auto',
+                boxShadow: '0 4px 20px rgba(0,0,0,0.4)'
+              }}>
+                <img 
+                  src="/logo.png" 
+                  alt="Nityashree Enterprises Logo" 
+                  style={{ 
+                    height: '55px', 
+                    width: 'auto', 
+                    maxWidth: '220px',
+                    objectFit: 'contain',
+                    display: 'block'
+                  }} 
+                />
+              </div>
               <div className="badge-gold" style={{ marginBottom: '0.5rem' }}>
                 <Calendar size={14} />
                 <span>Fast Online Booking</span>

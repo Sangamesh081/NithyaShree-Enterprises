@@ -20,41 +20,39 @@ export default function Footer({ onOpenBooking }) {
         }}>
           
           {/* Brand Info */}
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+            <a href="#" style={{ textDecoration: 'none', display: 'inline-block', marginBottom: '1rem' }}>
               <div style={{
-                width: 44,
-                height: 44,
-                borderRadius: '12px',
-                background: 'linear-gradient(135deg, #FFB703 0%, #FB8500 100%)',
-                display: 'flex',
+                background: '#FFFFFF',
+                padding: '0.45rem 1.1rem',
+                borderRadius: '14px',
+                boxShadow: '0 4px 20px rgba(255, 255, 255, 0.25)',
+                display: 'inline-flex',
                 alignItems: 'center',
-                justify: 'center',
-                color: '#070d19',
-                fontWeight: 900,
-                fontSize: '1.3rem'
+                justify: 'center'
               }}>
-                NY
+                <img 
+                  src="/logo.png" 
+                  alt="Nityashree Enterprises Logo" 
+                  style={{ 
+                    height: '65px', 
+                    width: 'auto', 
+                    maxWidth: '240px',
+                    objectFit: 'contain'
+                  }} 
+                />
               </div>
-              <div>
-                <div style={{ fontFamily: 'var(--font-heading)', fontWeight: 900, fontSize: '1.2rem', color: '#FFF' }}>
-                  NITYASHREE
-                </div>
-                <div style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--accent-gold)', letterSpacing: '0.1em' }}>
-                  ENTERPRISES
-                </div>
-              </div>
-            </div>
+            </a>
 
-            <div style={{ color: 'var(--accent-gold)', fontWeight: 800, fontSize: '0.88rem', marginBottom: '0.5rem' }}>
+            <div style={{ color: 'var(--accent-gold)', fontWeight: 800, fontSize: '0.9rem', marginBottom: '0.5rem' }}>
               {companyDetails.tagline}
             </div>
 
-            <p style={{ fontSize: '0.88rem', lineHeight: 1.6, marginBottom: '1.25rem' }}>
+            <p style={{ fontSize: '0.88rem', lineHeight: 1.6, marginBottom: '1.25rem', maxWidth: '320px' }}>
               {companyDetails.subTagline}
             </p>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', color: '#2ECC71' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', fontSize: '0.85rem', color: '#2ECC71' }}>
               <ShieldCheck size={16} />
               <span>Registered & Verified Enterprise</span>
             </div>

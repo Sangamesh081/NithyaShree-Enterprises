@@ -113,17 +113,24 @@ export default function App() {
 
             <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
               <div style={{
-                width: 54,
-                height: 54,
-                borderRadius: '50%',
-                background: 'rgba(255,183,3,0.15)',
-                color: 'var(--accent-gold)',
-                display: 'flex',
-                alignItems: 'center',
-                justify: 'center',
-                margin: '0 auto 0.75rem auto'
+                background: '#FFFFFF',
+                padding: '0.4rem 1rem',
+                borderRadius: '12px',
+                display: 'inline-block',
+                margin: '0 auto 0.85rem auto',
+                boxShadow: '0 4px 20px rgba(0,0,0,0.4)'
               }}>
-                <Phone size={26} />
+                <img 
+                  src="/logo.png" 
+                  alt="Nityashree Enterprises Logo" 
+                  style={{ 
+                    height: '55px', 
+                    width: 'auto', 
+                    maxWidth: '220px',
+                    objectFit: 'contain',
+                    display: 'block'
+                  }} 
+                />
               </div>
               <h3 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#FFF' }}>
                 Nityashree Hotline Numbers

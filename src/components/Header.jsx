@@ -117,38 +117,51 @@ export default function Header({ onOpenBooking, onOpenCallModal }) {
         backdropFilter: 'blur(16px)',
         borderBottom: '1px solid rgba(255,255,255,0.08)',
         transition: 'var(--transition)',
-        padding: '0.8rem 0'
+        padding: '0.6rem 0'
       }}>
-        <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div className="container header-container" style={{
+          display: 'flex',
+          alignItems: 'center',
+          justify: 'space-between',
+          gap: '1.25rem'
+        }}>
           
-          {/* Logo */}
-          <a href="#" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          {/* 1. Logo First (Left Column) */}
+          <a 
+            href="#" 
+            className="header-logo-first"
+            style={{ 
+              textDecoration: 'none', 
+              display: 'flex', 
+              alignItems: 'center'
+            }}
+          >
             <div style={{
-              width: 46,
-              height: 46,
+              background: '#FFFFFF',
+              padding: '0.35rem 0.85rem',
               borderRadius: '12px',
-              background: 'linear-gradient(135deg, #FFB703 0%, #FB8500 100%)',
+              boxShadow: '0 4px 18px rgba(255, 255, 255, 0.25)',
               display: 'flex',
               alignItems: 'center',
-              justify: 'center',
-              boxShadow: '0 4px 15px rgba(255, 183, 3, 0.4)',
-              color: '#070d19',
-              fontWeight: 900,
-              fontSize: '1.4rem'
+              justify: 'center'
             }}>
-              NY
-            </div>
-            <div>
-              <div style={{ fontFamily: 'var(--font-heading)', fontWeight: 900, fontSize: '1.25rem', color: '#FFF', letterSpacing: '0.03em', lineHeight: 1.1 }}>
-                NITYASHREE
-              </div>
-              <div style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--accent-gold)', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
-                ENTERPRISES
-              </div>
+              <img 
+                src="/logo.png" 
+                alt="Nityashree Enterprises Logo" 
+                style={{
+                  height: '50px',
+                  width: 'auto',
+                  maxWidth: '210px',
+                  objectFit: 'contain',
+                  transition: 'transform 0.3s ease'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.04)'}
+                onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+              />
             </div>
           </a>
 
-          {/* Desktop Nav Links */}
+          {/* 2. Desktop Nav Links (Middle Column) */}
           <div className="desktop-links" style={{ display: 'flex', alignItems: 'center', gap: '1.75rem' }}>
             <a href="#services" className="nav-item">Services</a>
             <a href="#calculator" className="nav-item">Instant Quote</a>
@@ -158,15 +171,36 @@ export default function Header({ onOpenBooking, onOpenCallModal }) {
             <a href="#contact" className="nav-item">Contact</a>
           </div>
 
-          {/* Action Buttons */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+          {/* 3. Action Buttons (Right Column) */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', justifyContent: 'flex-end' }}>
+            <button 
+              onClick={onOpenCallModal}
+              className="btn-call-quick"
+              style={{
+                background: 'rgba(255,183,3,0.12)',
+                border: '1px solid rgba(255,183,3,0.3)',
+                color: 'var(--accent-gold)',
+                padding: '0.55rem 0.85rem',
+                borderRadius: '8px',
+                fontSize: '0.82rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.35rem'
+              }}
+            >
+              <Phone size={15} />
+              <span>Call Hotline</span>
+            </button>
+
             <button 
               onClick={onOpenBooking}
               className="btn btn-gold"
-              style={{ padding: '0.65rem 1.25rem', fontSize: '0.9rem' }}
+              style={{ padding: '0.6rem 1.25rem', fontSize: '0.88rem' }}
             >
               <Calendar size={16} />
-              <span>Book Service</span>
+              <span className="btn-text-desktop">Book Service</span>
             </button>
 
             {/* Mobile Hamburger Toggle */}
@@ -188,24 +222,44 @@ export default function Header({ onOpenBooking, onOpenCallModal }) {
           </div>
         </div>
 
-        {/* Mobile Navigation Menu */}
+        {/* Mobile Navigation Drawer */}
         {mobileMenuOpen && (
           <div style={{
             background: 'var(--bg-card)',
             borderBottom: '1px solid var(--border-glass)',
-            padding: '1.25rem 1.5rem',
+            padding: '1.5rem',
             display: 'flex',
             flexDirection: 'column',
-            gap: '1rem'
+            alignItems: 'center',
+            textAlign: 'center',
+            gap: '1.1rem'
           }}>
-            <a href="#services" onClick={() => setMobileMenuOpen(false)} style={{ color: '#FFF', textDecoration: 'none', fontWeight: 600 }}>Services (12)</a>
-            <a href="#calculator" onClick={() => setMobileMenuOpen(false)} style={{ color: '#FFF', textDecoration: 'none', fontWeight: 600 }}>Cost Calculator</a>
-            <a href="#why-us" onClick={() => setMobileMenuOpen(false)} style={{ color: '#FFF', textDecoration: 'none', fontWeight: 600 }}>Why Choose Us</a>
-            <a href="#reviews" onClick={() => setMobileMenuOpen(false)} style={{ color: '#FFF', textDecoration: 'none', fontWeight: 600 }}>Customer Reviews</a>
-            <a href="#faq" onClick={() => setMobileMenuOpen(false)} style={{ color: '#FFF', textDecoration: 'none', fontWeight: 600 }}>FAQ</a>
-            <a href="#contact" onClick={() => setMobileMenuOpen(false)} style={{ color: '#FFF', textDecoration: 'none', fontWeight: 600 }}>Contact Info</a>
+            {/* Centered Logo inside Mobile Drawer */}
+            <div style={{
+              background: '#FFFFFF',
+              padding: '0.4rem 1rem',
+              borderRadius: '12px',
+              boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
+              display: 'inline-block',
+              marginBottom: '0.5rem'
+            }}>
+              <img 
+                src="/logo.png" 
+                alt="Nityashree Enterprises" 
+                style={{ height: '55px', width: 'auto', objectFit: 'contain' }} 
+              />
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem', width: '100%', alignItems: 'center' }}>
+              <a href="#services" onClick={() => setMobileMenuOpen(false)} style={{ color: '#FFF', textDecoration: 'none', fontWeight: 600, fontSize: '1.05rem' }}>Services (12)</a>
+              <a href="#calculator" onClick={() => setMobileMenuOpen(false)} style={{ color: '#FFF', textDecoration: 'none', fontWeight: 600, fontSize: '1.05rem' }}>Cost Calculator</a>
+              <a href="#why-us" onClick={() => setMobileMenuOpen(false)} style={{ color: '#FFF', textDecoration: 'none', fontWeight: 600, fontSize: '1.05rem' }}>Why Choose Us</a>
+              <a href="#reviews" onClick={() => setMobileMenuOpen(false)} style={{ color: '#FFF', textDecoration: 'none', fontWeight: 600, fontSize: '1.05rem' }}>Customer Reviews</a>
+              <a href="#faq" onClick={() => setMobileMenuOpen(false)} style={{ color: '#FFF', textDecoration: 'none', fontWeight: 600, fontSize: '1.05rem' }}>FAQ</a>
+              <a href="#contact" onClick={() => setMobileMenuOpen(false)} style={{ color: '#FFF', textDecoration: 'none', fontWeight: 600, fontSize: '1.05rem' }}>Contact Info</a>
+            </div>
             
-            <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '1rem', width: '100%', display: 'flex', flexDirection: 'column', gap: '0.5rem', alignItems: 'center' }}>
               <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 700 }}>Direct Call Numbers:</div>
               {phoneNumbers.map((p, i) => (
                 <a key={i} href={`tel:${p.raw}`} style={{ color: 'var(--accent-gold)', textDecoration: 'none', fontWeight: 700, fontSize: '0.95rem' }}>
@@ -229,12 +283,23 @@ export default function Header({ onOpenBooking, onOpenCallModal }) {
         .nav-item:hover {
           color: var(--accent-gold);
         }
-        @media (max-width: 900px) {
+        @media (max-width: 990px) {
           .desktop-links {
             display: none !important;
           }
           .mobile-toggle {
             display: flex !important;
+          }
+          .header-logo-first img {
+            height: 42px !important;
+          }
+        }
+        @media (max-width: 580px) {
+          .btn-call-quick span {
+            display: none;
+          }
+          .btn-text-desktop {
+            display: none;
           }
         }
       `}</style>

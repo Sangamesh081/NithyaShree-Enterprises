@@ -90,117 +90,130 @@ export default function ServicesGrid({ onSelectService, onBookService, searchQue
                 key={service.id}
                 className="glass-card"
                 style={{
-                  padding: '2rem',
+                  padding: '2.2rem 1.75rem',
                   display: 'flex',
                   flexDirection: 'column',
+                  alignItems: 'center',
+                  textAlign: 'center',
                   justify: 'space-between',
                   position: 'relative',
                   overflow: 'hidden'
                 }}
               >
-                {/* Popular Tag */}
+                {/* Popular Choice Badge (Top Center) */}
                 {service.popular && (
                   <div style={{
                     position: 'absolute',
                     top: '1rem',
                     right: '1rem',
-                    background: 'rgba(255, 183, 3, 0.15)',
-                    border: '1px solid var(--accent-gold)',
+                    background: 'rgba(229, 178, 58, 0.15)',
+                    border: '1.5px solid var(--accent-gold)',
                     color: 'var(--accent-gold)',
-                    fontSize: '0.7rem',
+                    fontSize: '0.68rem',
                     fontWeight: 800,
-                    padding: '0.2rem 0.6rem',
+                    padding: '0.22rem 0.65rem',
                     borderRadius: '12px',
-                    textTransform: 'uppercase'
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em'
                   }}>
                     Popular Choice
                   </div>
                 )}
 
-                <div>
-                  {/* Icon & Number Badge */}
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
-                    <div style={{
-                      width: 56,
-                      height: 56,
-                      borderRadius: '16px',
-                      background: 'rgba(255, 183, 3, 0.12)',
-                      border: '1.5px solid rgba(255, 183, 3, 0.3)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justify: 'center',
-                      color: 'var(--accent-gold)'
-                    }}>
-                      <IconComp size={28} />
-                    </div>
-
-                    <span style={{
-                      fontFamily: 'var(--font-heading)',
-                      fontSize: '1.8rem',
-                      fontWeight: 900,
-                      color: 'rgba(255,255,255,0.12)'
-                    }}>
-                      {service.number}
-                    </span>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
+                  {/* Centered Icon Box */}
+                  <div style={{
+                    width: 62,
+                    height: 62,
+                    borderRadius: '18px',
+                    background: 'rgba(229, 178, 58, 0.14)',
+                    border: '1.5px solid rgba(229, 178, 58, 0.4)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justify: 'center',
+                    color: 'var(--accent-gold)',
+                    margin: '0 auto 1.25rem auto',
+                    boxShadow: '0 6px 20px rgba(229, 178, 58, 0.2)'
+                  }}>
+                    <IconComp size={30} />
                   </div>
 
-                  {/* Category Tag & Title */}
-                  <div style={{ fontSize: '0.75rem', color: 'var(--accent-gold)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.4rem' }}>
+                  {/* Category Tag & Title - Centered */}
+                  <div style={{ 
+                    fontSize: '0.78rem', 
+                    color: 'var(--accent-gold)', 
+                    fontWeight: 800, 
+                    textTransform: 'uppercase', 
+                    letterSpacing: '0.08em', 
+                    marginBottom: '0.4rem',
+                    textAlign: 'center'
+                  }}>
                     {service.category}
                   </div>
 
-                  <h3 style={{ fontSize: '1.35rem', fontWeight: 800, color: '#FFF', marginBottom: '0.75rem' }}>
+                  <h3 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#FFF', marginBottom: '0.75rem', textAlign: 'center' }}>
                     {service.title}
                   </h3>
 
-                  <p style={{ color: 'var(--text-muted)', fontSize: '0.92rem', lineHeight: 1.5, marginBottom: '1.25rem' }}>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.92rem', lineHeight: 1.55, marginBottom: '1.25rem', textAlign: 'center' }}>
                     {service.shortDesc}
                   </p>
 
-                  {/* Features Bullet List */}
-                  <div style={{ display: 'grid', gap: '0.5rem', marginBottom: '1.5rem' }}>
+                  {/* Centered Features Bullet List */}
+                  <div style={{ 
+                    display: 'flex', 
+                    flexDirection: 'column', 
+                    alignItems: 'center', 
+                    gap: '0.55rem', 
+                    marginBottom: '1.5rem',
+                    width: '100%' 
+                  }}>
                     {service.features.map((feat, fIdx) => (
-                      <div key={fIdx} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', color: '#CBD5E1' }}>
-                        <Check size={14} color="var(--accent-gold)" />
+                      <div key={fIdx} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', fontSize: '0.86rem', color: '#CBD5E1', textAlign: 'center' }}>
+                        <Check size={14} color="var(--accent-gold)" style={{ flexShrink: 0 }} />
                         <span>{feat}</span>
                       </div>
                     ))}
                   </div>
                 </div>
 
-                {/* Footer Price & Action */}
+                {/* Footer Price & Action Buttons - Centered */}
                 <div style={{
                   borderTop: '1px solid rgba(255,255,255,0.08)',
                   paddingTop: '1.25rem',
                   display: 'flex',
+                  flexDirection: 'column',
                   alignItems: 'center',
-                  justify: 'space-between',
-                  gap: '0.5rem'
+                  justify: 'center',
+                  gap: '0.85rem',
+                  width: '100%',
+                  textAlign: 'center'
                 }}>
                   <div>
                     <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Starting Price</div>
-                    <div style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--accent-gold)' }}>
+                    <div style={{ fontSize: '1.15rem', fontWeight: 900, color: 'var(--accent-gold)' }}>
                       {service.estimatedPrice}
                     </div>
                   </div>
 
-                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  <div style={{ display: 'flex', gap: '0.6rem', width: '100%', justifyContent: 'center' }}>
                     <button
                       onClick={() => onSelectService(service)}
                       className="btn btn-outline"
-                      style={{ padding: '0.5rem 0.75rem', fontSize: '0.82rem' }}
+                      style={{ padding: '0.55rem 1rem', fontSize: '0.82rem', flex: 1, justifyContent: 'center' }}
                       title="View Service Details"
                     >
                       <Info size={15} />
+                      <span>Details</span>
                     </button>
 
                     <button
                       onClick={() => onBookService(service)}
                       className="btn btn-gold"
-                      style={{ padding: '0.55rem 1rem', fontSize: '0.85rem' }}
+                      style={{ padding: '0.55rem 1rem', fontSize: '0.82rem', flex: 1, justifyContent: 'center' }}
                     >
+                      <ArrowRight size={15} />
                       <span>Book</span>
-                      <ArrowRight size={14} />
                     </button>
                   </div>
                 </div>
