@@ -29,16 +29,26 @@ export default function AdminPortal({ onNavigateHome }) {
     notes: ''
   });
 
+  const [newBookingAlert, setNewBookingAlert] = useState(null);
+
   useEffect(() => {
+    let lastCount = 0;
     const refreshData = async () => {
       const liveData = await fetchRemoteBookings();
-      setBookings(liveData && liveData.length > 0 ? liveData : getStoredBookings());
+      const currentList = liveData && liveData.length > 0 ? liveData : getStoredBookings();
+      setBookings(currentList);
+
+      if (lastCount > 0 && currentList.length > lastCount) {
+        const newest = currentList[0];
+        setNewBookingAlert(`🚨 NEW ONLINE SERVICE ORDER: ${newest.serviceTitle || 'Service'} booked by ${newest.customerName || 'Customer'} (#${newest.id})`);
+      }
+      lastCount = currentList.length;
     };
     refreshData();
 
     window.addEventListener('nityashree_booking_updated', refreshData);
     window.addEventListener('storage', refreshData);
-    const interval = setInterval(refreshData, 1500); // 1.5-second live refresh
+    const interval = setInterval(refreshData, 1500);
 
     return () => {
       window.removeEventListener('nityashree_booking_updated', refreshData);
@@ -103,13 +113,22 @@ export default function AdminPortal({ onNavigateHome }) {
     alert(`Order #${orderObj.id} logged successfully!`);
   };
 
-  const filteredBookings = bookings.filter(b => {
+  const filteredBookings = (bookings || []).filter(b => {
+    if (!b || typeof b !== 'object') return false;
     const matchesStatus = statusFilter === 'All' || b.status === statusFilter;
-    const matchesSearch = !searchQuery || 
-      b.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      b.serviceTitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      b.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      b.phone.includes(searchQuery);
+    const q = (searchQuery || '').trim().toLowerCase();
+    
+    const idStr = b.id ? String(b.id).toLowerCase() : '';
+    const titleStr = b.serviceTitle ? String(b.serviceTitle).toLowerCase() : '';
+    const nameStr = b.customerName ? String(b.customerName).toLowerCase() : '';
+    const phoneStr = b.phone ? String(b.phone).toLowerCase() : '';
+
+    const matchesSearch = !q || 
+      idStr.includes(q) || 
+      titleStr.includes(q) || 
+      nameStr.includes(q) || 
+      phoneStr.includes(q);
+
     return matchesStatus && matchesSearch;
   });
 
@@ -271,6 +290,43 @@ export default function AdminPortal({ onNavigateHome }) {
             </button>
           </div>
         </div>
+
+        {/* Live Alert Toast Banner */}
+        {newBookingAlert && (
+          <div style={{
+            background: 'linear-gradient(135deg, rgba(229, 178, 58, 0.25), rgba(16, 185, 129, 0.25))',
+            border: '2px solid var(--accent-gold)',
+            borderRadius: 'var(--radius-md)',
+            padding: '1rem 1.5rem',
+            marginBottom: '2rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '1rem',
+            boxShadow: '0 4px 20px rgba(229, 178, 58, 0.3)',
+            animation: 'pulse 2s infinite'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', color: '#FFF', fontWeight: 800, fontSize: '1rem' }}>
+              <AlertCircle size={24} color="var(--accent-gold)" />
+              <span>{newBookingAlert}</span>
+            </div>
+            <button
+              onClick={() => setNewBookingAlert(null)}
+              style={{
+                background: 'rgba(255,255,255,0.1)',
+                border: '1px solid rgba(255,255,255,0.2)',
+                color: '#FFF',
+                padding: '0.35rem 0.85rem',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                fontSize: '0.82rem',
+                fontWeight: 700
+              }}
+            >
+              Dismiss
+            </button>
+          </div>
+        )}
 
         {/* 4 Stats Counters */}
         <div style={{
