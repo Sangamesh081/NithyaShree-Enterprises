@@ -39,7 +39,7 @@ export default function SignupPage({ onNavigateLogin }) {
       name: formData.fullName,
       phone: formData.phone || formData.email,
       email: formData.email ? formData.email.trim().toLowerCase() : `${formData.phone}@user.com`,
-      address: formData.address || 'Bengaluru, Karnataka',
+      address: formData.address || 'Bagalkot, Karnataka',
       password: formData.password
     };
 
