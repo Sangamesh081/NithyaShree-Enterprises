@@ -1,0 +1,6 @@
+# Allow all search engines including Googlebot
+User-agent: *
+Allow: /
+
+# Sitemap Location for Google Search Console
+Sitemap: https://nityashree.com/sitemap.xml
