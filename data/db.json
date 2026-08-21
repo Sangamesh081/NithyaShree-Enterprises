@@ -1,22 +1,6 @@
 {
   "bookings": [
     {
-      "id": "NY-MOBI-5607",
-      "customerName": "Mobile Test Customer",
-      "phone": "+91 9876543210",
-      "address": "Navanagar Sector 10, Bagalkot",
-      "serviceTitle": "Electrical & Plumbing Emergency",
-      "serviceId": 1,
-      "date": "2026-08-21",
-      "timeSlot": "Morning (9 AM - 12 PM)",
-      "status": "Pending",
-      "technicianName": "Technician Assignment Pending",
-      "technicianPhone": "-",
-      "estimatedCost": "₹1,200",
-      "notes": "Test booking submitted from mobile connection.",
-      "createdAt": "2026-08-21 14:07"
-    },
-    {
       "id": "NY-PUBLIC-101",
       "customerName": "Customer From 4G Mobile",
       "serviceTitle": "Plumbing Leak Repair",
