@@ -1,6 +1,8 @@
 export const initialBookings = [];
 
-// BroadcastChannel for instant zero-latency cross-tab sync
+const NTFY_CLOUD_TOPIC = 'https://ntfy.sh/nityashree_orders_channel_2026';
+
+// BroadcastChannel for instant zero-latency cross-tab sync on same device
 const broadcastChannel = typeof window !== 'undefined' && 'BroadcastChannel' in window
   ? new BroadcastChannel('nityashree_booking_channel')
   : null;
@@ -23,7 +25,7 @@ function notifyBroadcast() {
   }
 }
 
-// Get candidate API endpoints to ensure cross-device network connectivity
+// Get candidate local API endpoints
 function getApiEndpoints(path) {
   if (typeof window === 'undefined') return [`/api${path}`];
   
@@ -31,17 +33,11 @@ function getApiEndpoints(path) {
   const origin = window.location.origin;
 
   const endpoints = [];
-
-  // 1. Relative path (works when proxied or hosted on same domain)
   endpoints.push(`/api${path}`);
-
-  // 2. Direct HTTP connection to Express server port 3001
   if (host && host !== 'localhost' && host !== '127.0.0.1') {
     endpoints.push(`http://${host}:3001/api${path}`);
   }
   endpoints.push(`http://localhost:3001/api${path}`);
-
-  // 3. Current origin API path
   if (origin && !origin.startsWith('file:')) {
     endpoints.push(`${origin}/api${path}`);
   }
@@ -49,17 +45,41 @@ function getApiEndpoints(path) {
   return Array.from(new Set(endpoints));
 }
 
-// Robust async fetch from server
+// Robust async fetch from Global Cloud Pub/Sub + local Express server
 export async function fetchRemoteBookings() {
   if (typeof window === 'undefined') return [];
 
-  const endpoints = getApiEndpoints('/bookings');
   const bookingMap = new Map();
 
-  // Populate from local storage cache first
+  // 1. Populate from local storage cache first
   const local = getStoredBookings();
   local.forEach(b => { if (b && b.id) bookingMap.set(b.id, b); });
 
+  // 2. Fetch from ntfy.sh global cloud topic (100% global cross-network compatibility)
+  try {
+    const cloudRes = await fetch(`${NTFY_CLOUD_TOPIC}/json?poll=1`, { cache: 'no-store' });
+    if (cloudRes.ok) {
+      const text = await cloudRes.text();
+      const lines = text.trim().split('\n');
+      lines.forEach(line => {
+        try {
+          const item = JSON.parse(line);
+          if (item && item.message) {
+            const parsedObj = JSON.parse(item.message);
+            if (parsedObj && (parsedObj.id || parsedObj.serviceTitle)) {
+              const cleanId = parsedObj.id || `NY-${Math.floor(8000 + Math.random() * 1000)}`;
+              bookingMap.set(cleanId, { ...parsedObj, id: cleanId });
+            }
+          }
+        } catch (e) {}
+      });
+    }
+  } catch (err) {
+    // Continue fallback
+  }
+
+  // 3. Fetch from local backend API server
+  const endpoints = getApiEndpoints('/bookings');
   for (const url of endpoints) {
     try {
       const res = await fetch(url, { 
@@ -70,16 +90,11 @@ export async function fetchRemoteBookings() {
         const remoteData = await res.json();
         if (Array.isArray(remoteData)) {
           remoteData.forEach(b => {
-            if (b && (b.id || b._id)) {
-              const cleanId = b.id || `NY-${String(b._id).substring(0, 4)}`;
-              bookingMap.set(cleanId, { ...b, id: cleanId });
-            }
+            if (b && b.id) bookingMap.set(b.id, b);
           });
         }
       }
-    } catch (e) {
-      // Continue fallback
-    }
+    } catch (e) {}
   }
 
   const combinedBookings = Array.from(bookingMap.values());
@@ -96,10 +111,10 @@ export async function fetchRemoteBookings() {
   return getStoredBookings();
 }
 
-// Start auto-sync heartbeat every 1 second
+// Start auto-sync heartbeat every 1.5 seconds
 if (typeof window !== 'undefined') {
   fetchRemoteBookings();
-  setInterval(fetchRemoteBookings, 1000);
+  setInterval(fetchRemoteBookings, 1500);
 }
 
 export function getStoredBookings() {
@@ -129,12 +144,22 @@ export function saveBooking(newBooking) {
     console.error("Storage error", e);
   }
 
-  // Asynchronously send to API server endpoints
+  // 1. Send to Global Cloud Topic (Works 100% from any mobile phone on 4G/5G/Wi-Fi anywhere in the world)
+  fetch(NTFY_CLOUD_TOPIC, {
+    method: 'POST',
+    headers: {
+      'Title': `New Order ${newBooking.id}`,
+      'Tags': 'incoming_order'
+    },
+    body: JSON.stringify(newBooking)
+  }).catch(err => console.warn("ntfy cloud post error", err));
+
+  // 2. Send to local API endpoints
   const endpoints = getApiEndpoints('/bookings');
   (async () => {
     for (const url of endpoints) {
       try {
-        const res = await fetch(url, {
+        await fetch(url, {
           method: 'POST',
           headers: { 
             'Content-Type': 'application/json',
@@ -142,12 +167,7 @@ export function saveBooking(newBooking) {
           },
           body: JSON.stringify(newBooking)
         });
-        if (res.ok) {
-          console.log('[Sync] Live booking delivered to:', url);
-        }
-      } catch (err) {
-        console.warn('[Sync] Sync failed for:', url);
-      }
+      } catch (err) {}
     }
     fetchRemoteBookings();
   })();
