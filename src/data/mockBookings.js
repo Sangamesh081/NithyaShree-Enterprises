@@ -23,27 +23,23 @@ function notifyBroadcast() {
   }
 }
 
-// Get clean candidate API endpoints without third-party firewall triggers
+// Get clean candidate API endpoints safely without triggering Vercel Edge 403 Forbidden errors
 function getApiEndpoints(path) {
-  if (typeof window === 'undefined') return [`/api${path}`];
+  if (typeof window === 'undefined') return [];
   
   const host = window.location.hostname || 'localhost';
-  const origin = window.location.origin;
 
   const endpoints = [];
-  
-  // 1. Same-origin relative path
-  endpoints.push(`/api${path}`);
 
-  // 2. Direct Express server on port 3001
-  if (host && host !== 'localhost' && host !== '127.0.0.1') {
-    endpoints.push(`http://${host}:3001/api${path}`);
-  }
-  endpoints.push(`http://localhost:3001/api${path}`);
+  // Only invoke backend server endpoints when running on local host or local network
+  const isLocalNetwork = host === 'localhost' || host === '127.0.0.1' || host.startsWith('192.168.') || host.startsWith('10.') || host.startsWith('172.');
 
-  // 3. Clean origin path if not file protocol
-  if (origin && !origin.startsWith('file:') && !origin.startsWith('blob:')) {
-    endpoints.push(`${origin}/api${path}`);
+  if (isLocalNetwork) {
+    endpoints.push(`/api${path}`);
+    if (host !== 'localhost' && host !== '127.0.0.1') {
+      endpoints.push(`http://${host}:3001/api${path}`);
+    }
+    endpoints.push(`http://localhost:3001/api${path}`);
   }
 
   return Array.from(new Set(endpoints));
