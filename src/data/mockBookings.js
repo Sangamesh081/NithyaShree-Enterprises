@@ -1,22 +1,55 @@
 export const initialBookings = [];
 
-const GLOBAL_CLOUD_BASE = 'https://crudcrud.com/api/35edef6b4489449da63c5975986c44ee';
+// BroadcastChannel for instant zero-latency cross-tab sync
+const broadcastChannel = typeof window !== 'undefined' && 'BroadcastChannel' in window
+  ? new BroadcastChannel('nityashree_booking_channel')
+  : null;
 
-// Get candidate API endpoints to ensure global internet & cross-device connectivity
+if (broadcastChannel) {
+  broadcastChannel.onmessage = (event) => {
+    if (event.data && event.data.type === 'BOOKING_UPDATED') {
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('nityashree_booking_updated'));
+      }
+    }
+  };
+}
+
+function notifyBroadcast() {
+  if (broadcastChannel) {
+    try {
+      broadcastChannel.postMessage({ type: 'BOOKING_UPDATED', timestamp: Date.now() });
+    } catch (e) {}
+  }
+}
+
+// Get candidate API endpoints to ensure cross-device network connectivity
 function getApiEndpoints(path) {
   if (typeof window === 'undefined') return [`/api${path}`];
   
   const host = window.location.hostname || 'localhost';
-  const endpoints = [
-    `${GLOBAL_CLOUD_BASE}${path}`,
-    `/api${path}`,
-    `http://${host}:3001/api${path}`
-  ];
+  const origin = window.location.origin;
+
+  const endpoints = [];
+
+  // 1. Relative path (works when proxied or hosted on same domain)
+  endpoints.push(`/api${path}`);
+
+  // 2. Direct HTTP connection to Express server port 3001
+  if (host && host !== 'localhost' && host !== '127.0.0.1') {
+    endpoints.push(`http://${host}:3001/api${path}`);
+  }
+  endpoints.push(`http://localhost:3001/api${path}`);
+
+  // 3. Current origin API path
+  if (origin && !origin.startsWith('file:')) {
+    endpoints.push(`${origin}/api${path}`);
+  }
 
   return Array.from(new Set(endpoints));
 }
 
-// Robust async fetch from global cloud + local server
+// Robust async fetch from server
 export async function fetchRemoteBookings() {
   if (typeof window === 'undefined') return [];
 
@@ -29,13 +62,16 @@ export async function fetchRemoteBookings() {
 
   for (const url of endpoints) {
     try {
-      const res = await fetch(url, { cache: 'no-store' });
+      const res = await fetch(url, { 
+        cache: 'no-store',
+        headers: { 'bypass-tunnel-reminder': 'true' }
+      });
       if (res.ok) {
         const remoteData = await res.json();
         if (Array.isArray(remoteData)) {
           remoteData.forEach(b => {
             if (b && (b.id || b._id)) {
-              const cleanId = b.id || `NY-${b._id.substring(0, 4)}`;
+              const cleanId = b.id || `NY-${String(b._id).substring(0, 4)}`;
               bookingMap.set(cleanId, { ...b, id: cleanId });
             }
           });
@@ -52,6 +88,7 @@ export async function fetchRemoteBookings() {
     if (JSON.stringify(combinedBookings) !== JSON.stringify(currentLocal)) {
       localStorage.setItem('nityashree_bookings', JSON.stringify(combinedBookings));
       window.dispatchEvent(new Event('nityashree_booking_updated'));
+      notifyBroadcast();
     }
     return combinedBookings;
   }
@@ -59,10 +96,10 @@ export async function fetchRemoteBookings() {
   return getStoredBookings();
 }
 
-// Start auto-sync heartbeat every 1.5 seconds
+// Start auto-sync heartbeat every 1 second
 if (typeof window !== 'undefined') {
   fetchRemoteBookings();
-  setInterval(fetchRemoteBookings, 1500);
+  setInterval(fetchRemoteBookings, 1000);
 }
 
 export function getStoredBookings() {
@@ -86,19 +123,23 @@ export function saveBooking(newBooking) {
     localStorage.setItem('nityashree_bookings', JSON.stringify(updated));
     if (typeof window !== 'undefined') {
       window.dispatchEvent(new Event('nityashree_booking_updated'));
+      notifyBroadcast();
     }
   } catch (e) {
     console.error("Storage error", e);
   }
 
-  // Asynchronously broadcast to Global Cloud API & local server endpoints
+  // Asynchronously send to API server endpoints
   const endpoints = getApiEndpoints('/bookings');
   (async () => {
     for (const url of endpoints) {
       try {
         const res = await fetch(url, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            'bypass-tunnel-reminder': 'true'
+          },
           body: JSON.stringify(newBooking)
         });
         if (res.ok) {
@@ -132,19 +173,22 @@ export function updateBookingStatus(id, newStatus, technicianName, technicianPho
     localStorage.setItem('nityashree_bookings', JSON.stringify(updated));
     if (typeof window !== 'undefined') {
       window.dispatchEvent(new Event('nityashree_booking_updated'));
+      notifyBroadcast();
     }
   } catch (e) {
     console.error("Storage error", e);
   }
 
-  // Sync update to endpoints
   const endpoints = getApiEndpoints(`/bookings/${id}`);
   (async () => {
     for (const url of endpoints) {
       try {
         await fetch(url, {
           method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            'bypass-tunnel-reminder': 'true'
+          },
           body: JSON.stringify({ status: newStatus, technicianName, technicianPhone })
         });
       } catch (err) {}
@@ -163,17 +207,20 @@ export function deleteBooking(id) {
     localStorage.setItem('nityashree_bookings', JSON.stringify(updated));
     if (typeof window !== 'undefined') {
       window.dispatchEvent(new Event('nityashree_booking_updated'));
+      notifyBroadcast();
     }
   } catch (e) {
     console.error("Storage error", e);
   }
 
-  // Sync deletion to endpoints
   const endpoints = getApiEndpoints(`/bookings/${id}`);
   (async () => {
     for (const url of endpoints) {
       try {
-        await fetch(url, { method: 'DELETE' });
+        await fetch(url, { 
+          method: 'DELETE',
+          headers: { 'bypass-tunnel-reminder': 'true' }
+        });
       } catch (err) {}
     }
     fetchRemoteBookings();
@@ -226,7 +273,10 @@ export function registerNewUser(userData) {
       try {
         await fetch(url, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            'bypass-tunnel-reminder': 'true'
+          },
           body: JSON.stringify(userData)
         });
       } catch (err) {}
@@ -310,6 +360,7 @@ export function saveFeedback(newFeedback) {
     localStorage.setItem('nityashree_feedbacks', JSON.stringify(updated));
     if (typeof window !== 'undefined') {
       window.dispatchEvent(new Event('nityashree_feedback_updated'));
+      notifyBroadcast();
     }
   } catch (e) {
     console.error("Storage error", e);
