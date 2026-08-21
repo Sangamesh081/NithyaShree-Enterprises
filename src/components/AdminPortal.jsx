@@ -328,6 +328,60 @@ export default function AdminPortal({ onNavigateHome }) {
           </div>
         )}
 
+        {/* Mobile Connection Helper & Live Diagnostic Box */}
+        <div className="glass-card" style={{
+          padding: '1.25rem 1.5rem',
+          marginBottom: '2rem',
+          background: 'rgba(13, 26, 45, 0.85)',
+          border: '1px solid rgba(0, 210, 254, 0.3)',
+          borderRadius: 'var(--radius-md)',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '1rem'
+        }}>
+          <div>
+            <div style={{ fontSize: '0.78rem', color: '#00D2FE', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.25rem' }}>
+              📲 Mobile Phone Connection Link
+            </div>
+            <div style={{ fontSize: '0.95rem', color: '#FFF', fontWeight: 700 }}>
+              To receive bookings from mobile phones on your network, open on your phone:{' '}
+              <strong style={{ color: 'var(--accent-gold)', background: 'rgba(255,183,3,0.15)', padding: '0.2rem 0.5rem', borderRadius: '6px' }}>
+                http://{typeof window !== 'undefined' ? window.location.hostname : 'localhost'}:{typeof window !== 'undefined' ? window.location.port || '5174' : '5174'}
+              </strong>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <button
+              onClick={() => {
+                const testObj = {
+                  id: `NY-MOBI-${Math.floor(1000 + Math.random() * 9000)}`,
+                  customerName: "Mobile Test Customer",
+                  phone: "+91 9876543210",
+                  address: "Navanagar Sector 10, Bagalkot",
+                  serviceTitle: "Electrical & Plumbing Emergency",
+                  serviceId: 1,
+                  date: new Date().toISOString().split('T')[0],
+                  timeSlot: "Morning (9 AM - 12 PM)",
+                  status: "Pending",
+                  technicianName: "Technician Assignment Pending",
+                  technicianPhone: "-",
+                  estimatedCost: "₹1,200",
+                  notes: "Test booking submitted from mobile connection.",
+                  createdAt: new Date().toISOString().replace('T', ' ').substring(0, 16)
+                };
+                saveBooking(testObj);
+              }}
+              className="btn btn-gold"
+              style={{ padding: '0.45rem 0.85rem', fontSize: '0.82rem' }}
+            >
+              <span>🧪 Test Mobile Order Dispatch</span>
+            </button>
+          </div>
+        </div>
+
         {/* 4 Stats Counters */}
         <div style={{
           display: 'grid',

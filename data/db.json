@@ -1,6 +1,12 @@
 {
   "bookings": [
     {
+      "id": "NY-PUBLIC-101",
+      "customerName": "Customer From 4G Mobile",
+      "serviceTitle": "Plumbing Leak Repair",
+      "phone": "+91 9123456789"
+    },
+    {
       "id": "NY-MOBILE-TEST",
       "customerName": "Mobile Phone Test",
       "serviceTitle": "Electrical Installation",
